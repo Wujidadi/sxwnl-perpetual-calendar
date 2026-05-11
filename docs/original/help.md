@@ -9,7 +9,7 @@ generated_by: scripts/docify-legacy.mjs
 
 浮動說明的 HTML 字串。
 
-> 來源：壽星天文曆（sxwnl）5.10.3 `src/help.js`。檔案大小 6.3 KB。  
+> 來源：sxwnl 5.10.3 `src/help.js`。檔案大小 6.3 KB。  
 > 本文件由 `scripts/docify-legacy.mjs` 自動產生，請勿手動編輯——以原始 `.js` 為準。
 
 ```js

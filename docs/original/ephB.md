@@ -9,7 +9,7 @@ generated_by: scripts/docify-legacy.mjs
 
 太陽系質心（SSB）位置與速度數值表，供恆星章動／光行差計算。
 
-> 來源：壽星天文曆（sxwnl）5.10.3 `src/ephB.js`。檔案大小 21.1 KB。  
+> 來源：sxwnl 5.10.3 `src/ephB.js`。檔案大小 21.1 KB。  
 > 本文件由 `scripts/docify-legacy.mjs` 自動產生，請勿手動編輯——以原始 `.js` 為準。
 
 ```js

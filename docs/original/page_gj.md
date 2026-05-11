@@ -9,7 +9,7 @@ generated_by: scripts/docify-legacy.mjs
 
 工具頁面的計算與輸入處理（`GJ1_*`／`GJ2_*`）。
 
-> 來源：壽星天文曆（sxwnl）5.10.3 `src/page_gj.js`。檔案大小 6.4 KB。  
+> 來源：sxwnl 5.10.3 `src/page_gj.js`。檔案大小 6.4 KB。  
 > 本文件由 `scripts/docify-legacy.mjs` 自動產生，請勿手動編輯——以原始 `.js` 為準。
 
 ```js

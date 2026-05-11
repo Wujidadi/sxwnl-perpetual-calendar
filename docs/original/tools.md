@@ -9,7 +9,7 @@ generated_by: scripts/docify-legacy.mjs
 
 紀年轉換、時間解析、`storageL`（localStorage + cookie 後援）、`addOp`。
 
-> 來源：壽星天文曆（sxwnl）5.10.3 `src/tools.js`。檔案大小 2.8 KB。  
+> 來源：sxwnl 5.10.3 `src/tools.js`。檔案大小 2.8 KB。  
 > 本文件由 `scripts/docify-legacy.mjs` 自動產生，請勿手動編輯——以原始 `.js` 為準。
 
 ```js

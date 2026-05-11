@@ -4,7 +4,7 @@
 
 ## 黃金樣本
 
-`tests/fixtures/golden.json` 由 `scripts/generate-golden.mjs` 自原 sxwnl 5.10.3 載入並計算固定輸入產生。改寫後的新版模組以同樣輸入求值，要求 bit-exact。
+`tests/fixtures/golden.json` 由 `scripts/generate-golden.mjs` 對固定輸入計算後產出，作為回歸基準。新模組以同樣輸入求值，要求 bit-exact。樣本來源與產生方式詳見 [`docs/`](../docs/)。
 
 重新產生：
 

@@ -9,7 +9,7 @@ generated_by: scripts/docify-legacy.mjs
 
 canvas 繪圖工具 `ht_*` 與三組視圖 `tu1`／`tu2`／`tu3`。
 
-> 來源：壽星天文曆（sxwnl）5.10.3 `src/vml.js`。檔案大小 10.3 KB。  
+> 來源：sxwnl 5.10.3 `src/vml.js`。檔案大小 10.3 KB。  
 > 本文件由 `scripts/docify-legacy.mjs` 自動產生，請勿手動編輯——以原始 `.js` 為準。
 
 ```js

@@ -9,7 +9,7 @@ generated_by: scripts/docify-legacy.mjs
 
 日月升中降 `SZJ`、行星天象、日月食 `msc`／`ysPL`／`rsGS`／`rsPL`／`ecFast`。
 
-> 來源：壽星天文曆（sxwnl）5.10.3 `src/eph.js`。檔案大小 60.5 KB。  
+> 來源：sxwnl 5.10.3 `src/eph.js`。檔案大小 60.5 KB。  
 > 本文件由 `scripts/docify-legacy.mjs` 自動產生，請勿手動編輯——以原始 `.js` 為準。
 
 <details>

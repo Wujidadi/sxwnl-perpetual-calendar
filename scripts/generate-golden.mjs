@@ -1,10 +1,9 @@
 #!/usr/bin/env node
-// 於 Node vm 沙箱中載入 sxwnl 5.10.3 原始 JS（提供最簡瀏覽器 stub），
-// 對固定輸入產出固定輸出，作為改寫後的回歸對照基準（要求 bit-exact）。
+// 於 Node vm 沙箱中載入參考來源 JS（提供最簡瀏覽器 stub），
+// 對固定輸入計算後輸出 tests/fixtures/golden.json，作為回歸對照基準（要求 bit-exact）。
 //
 // 使用方式：
 //   npm run golden            # 或 node scripts/generate-golden.mjs
-// 輸出：tests/fixtures/golden.json
 
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
@@ -13,11 +12,11 @@ import vm from 'node:vm';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = join(__dirname, '..');
-const sxwnlSrcDir = join(projectRoot, '..', 'sxwnl', 'src');
+const referenceSrcDir = join(projectRoot, '..', 'sxwnl', 'src');
 const outDir = join(projectRoot, 'tests', 'fixtures');
 const outPath = join(outDir, 'golden.json');
 
-// 載入順序 = 原 index.htm 依賴順序，但僅取算法相關，不取 vml/help/page_gj
+// 載入順序對應參考來源 index.htm 的依賴順序，僅取算法相關，不取 vml/help/page_gj
 const LOAD_ORDER = ['tools.js', 'eph0.js', 'ephB.js', 'eph.js', 'JW.js', 'lunar.js'];
 
 function createSandbox() {
@@ -38,7 +37,7 @@ function createSandbox() {
   });
   const sandbox = {
     console,
-    alert: (msg) => console.warn(`[sxwnl alert] ${msg}`),
+    alert: (msg) => console.warn(`[reference alert] ${msg}`),
     Storage,
     localStorage: makeStorage(),
     sessionStorage: makeStorage(),
@@ -59,7 +58,7 @@ async function loadSxwnl() {
   const sandbox = createSandbox();
   vm.createContext(sandbox);
   for (const file of LOAD_ORDER) {
-    const src = await readFile(join(sxwnlSrcDir, file), 'utf-8');
+    const src = await readFile(join(referenceSrcDir, file), 'utf-8');
     vm.runInContext(src, sandbox, { filename: file });
     console.log(`[load] ${file}`);
   }
@@ -168,9 +167,9 @@ async function main() {
   const s = await loadSxwnl();
   const samples = buildSamples(s);
   const payload = {
-    source: 'sxwnl 5.10.3 (../sxwnl/src)',
+    source: '../sxwnl/src (5.10.3)',
     generatedAt: new Date().toISOString(),
-    notes: '改寫後新版模組對相同輸入須產出與此完全一致的數值結果（bit-exact）。',
+    notes: '新模組對相同輸入須產出與此完全一致的數值結果（bit-exact）。',
     samples,
   };
   const json = JSON.stringify(payload, null, 2);

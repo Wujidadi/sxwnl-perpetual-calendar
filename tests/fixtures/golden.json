@@ -1,7 +1,7 @@
 {
-  "source": "sxwnl 5.10.3 (../sxwnl/src)",
-  "generatedAt": "2026-05-11T03:50:55.497Z",
-  "notes": "改寫後新版模組對相同輸入須產出與此完全一致的數值結果（bit-exact）。",
+  "source": "../sxwnl/src (5.10.3)",
+  "generatedAt": "2026-05-11T06:45:03.126Z",
+  "notes": "新模組對相同輸入須產出與此完全一致的數值結果（bit-exact）。",
   "samples": {
     "tools": {
       "year2Ayear": {

@@ -9,7 +9,7 @@ generated_by: scripts/docify-legacy.mjs
 
 常數、儒略日 `JD`、章動／歲差／視差／折射、VSOP87 與月球週期項計算。
 
-> 來源：壽星天文曆（sxwnl）5.10.3 `src/eph0.js`。檔案大小 271.4 KB。  
+> 來源：sxwnl 5.10.3 `src/eph0.js`。檔案大小 271.4 KB。  
 > 本文件由 `scripts/docify-legacy.mjs` 自動產生，請勿手動編輯——以原始 `.js` 為準。
 
 <details>
@@ -425,7 +425,7 @@ var preceTab_IAU1976=new Array( //IAU1976岁差表
      0,     5029.0966,  +1.11113, +0.000006, //p
      0,     2004.3109,  -0.42665, -0.041833, //th
      0,     2306.2181,  +0.30188, +0.017998, //Z
-     0,     2306.2181,  +1.09468, +0.018203  //z
+     0,     2306.2181,  +1.09468, +0.018203  //z	
 );
 
 var preceTab_IAU2000=new Array( //IAU2000岁差表

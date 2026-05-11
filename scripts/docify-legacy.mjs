@@ -1,17 +1,17 @@
 #!/usr/bin/env node
-// 將原 sxwnl 5.10.3 的 src/*.js 轉為 docs/original/<name>.md，
+// 將參考來源（`../sxwnl/src/*.js`）轉為 docs/original/<name>.md，
 // 附 frontmatter 與程式碼區塊；大於閾值的檔案以 <details> 摺疊。
 
-import { readFile, writeFile, mkdir, stat } from 'node:fs/promises';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = join(__dirname, '..');
-const sxwnlSrcDir = join(projectRoot, '..', 'sxwnl', 'src');
+const referenceSrcDir = join(projectRoot, '..', 'sxwnl', 'src');
 const outDir = join(projectRoot, 'docs', 'original');
 
-const SXWNL_VERSION = '5.10.3';
+const REFERENCE_VERSION = '5.10.3';
 const LARGE_FILE_THRESHOLD = 50 * 1024;
 
 const FILES = [
@@ -29,7 +29,7 @@ const FILES = [
 function buildMarkdown(file, code, sizeKB, isLarge) {
   const lines = [
     '---',
-    `source: sxwnl/${SXWNL_VERSION}/src/${file.name}`,
+    `source: sxwnl/${REFERENCE_VERSION}/src/${file.name}`,
     `title: ${file.title}`,
     `size: ${sizeKB} KB`,
     'generated_by: scripts/docify-legacy.mjs',
@@ -39,7 +39,7 @@ function buildMarkdown(file, code, sizeKB, isLarge) {
     '',
     file.desc,
     '',
-    `> 來源：壽星天文曆（sxwnl）${SXWNL_VERSION} \`src/${file.name}\`。檔案大小 ${sizeKB} KB。  `,
+    `> 來源：sxwnl ${REFERENCE_VERSION} \`src/${file.name}\`。檔案大小 ${sizeKB} KB。  `,
     '> 本文件由 `scripts/docify-legacy.mjs` 自動產生，請勿手動編輯——以原始 `.js` 為準。',
     '',
   ];
@@ -56,9 +56,9 @@ async function main() {
   await mkdir(outDir, { recursive: true });
   const summary = [];
   const indexLines = [
-    '# 原始 sxwnl 5.10.3 程式碼參考',
+    `# sxwnl ${REFERENCE_VERSION} 程式碼參考`,
     '',
-    '本資料夾為改寫對照用的原版程式碼，附原作者中文註解。由 `scripts/docify-legacy.mjs` 自原 sxwnl 倉庫（`../sxwnl/src`）自動產生，請勿手動編輯。',
+    '本資料夾為演算法參考來源的程式碼複本，附作者中文註解。由 `scripts/docify-legacy.mjs` 自 `../sxwnl/src` 自動產生，請勿手動編輯。',
     '',
     '## 檔案清單（依載入順序）',
     '',
@@ -66,7 +66,7 @@ async function main() {
     '|---|---|---|---|',
   ];
   for (const [i, file] of FILES.entries()) {
-    const srcPath = join(sxwnlSrcDir, file.name);
+    const srcPath = join(referenceSrcDir, file.name);
     let code;
     try {
       code = await readFile(srcPath, 'utf-8');
@@ -88,14 +88,14 @@ async function main() {
     '',
     '## 載入順序',
     '',
-    '原版 `src/index.htm` 依上表順序以 `<script src>` 載入；後者可直接使用前者的全域符號。所有 `.js` 共享同一個全域作用域，沒有模組邊界。',
+    'sxwnl 的 `src/index.htm` 依上表順序以 `<script src>` 載入；後者可直接使用前者的全域符號。所有 `.js` 共享同一個全域作用域，沒有模組邊界。',
     '',
     '## 重新產生',
     '',
     '```bash',
     'npm run docify',
     '```',
-    ''
+    '',
   );
   await writeFile(join(outDir, 'README.md'), indexLines.join('\n'), 'utf-8');
   console.log(`[ok]   README.md (${summary.length} 檔)`);

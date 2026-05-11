@@ -9,7 +9,7 @@ generated_by: scripts/docify-legacy.mjs
 
 實朔實氣 `SSQ`、`Lunar()` 月物件、年曆 HTML 產生器。
 
-> 來源：壽星天文曆（sxwnl）5.10.3 `src/lunar.js`。檔案大小 65.6 KB。  
+> 來源：sxwnl 5.10.3 `src/lunar.js`。檔案大小 65.6 KB。  
 > 本文件由 `scripts/docify-legacy.mjs` 自動產生，請勿手動編輯——以原始 `.js` 為準。
 
 <details>
@@ -915,13 +915,13 @@ function Lunar(){
 
   //月历处理
   ta0+='<tr>'
-  +'<td'+sty_head+'width="%14">日</td>'
-  +'<td'+sty_head+'width="%14">一</td>'
-  +'<td'+sty_head+'width="%14">二</td>'
-  +'<td'+sty_head+'width="%14">三</td>'
-  +'<td'+sty_head+'width="%14">四</td>'
-  +'<td'+sty_head+'width="%14">五</td>'
-  +'<td'+sty_head+'width="%14">六</td></tr>';
+	+'<td'+sty_head+'width="%14">日</td>'
+	+'<td'+sty_head+'width="%14">一</td>'
+	+'<td'+sty_head+'width="%14">二</td>'
+	+'<td'+sty_head+'width="%14">三</td>'
+	+'<td'+sty_head+'width="%14">四</td>'
+	+'<td'+sty_head+'width="%14">五</td>'
+	+'<td'+sty_head+'width="%14">六</td></tr>';
   for(i=0;i<this.dn;i++){ //遍历本月各日(公历)
     //生成i日的日历页面
     ob = this.lun[i];

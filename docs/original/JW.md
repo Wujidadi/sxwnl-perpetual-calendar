@@ -9,7 +9,7 @@ generated_by: scripts/docify-legacy.mjs
 
 城市經緯度壓縮資料 `JWv`、皇帝與年號紀年表。
 
-> 來源：壽星天文曆（sxwnl）5.10.3 `src/JW.js`。檔案大小 56.6 KB。  
+> 來源：sxwnl 5.10.3 `src/JW.js`。檔案大小 56.6 KB。  
 > 本文件由 `scripts/docify-legacy.mjs` 自動產生，請勿手動編輯——以原始 `.js` 為準。
 
 <details>
