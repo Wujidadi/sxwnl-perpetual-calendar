@@ -1,5 +1,5 @@
 // 年曆 HTML 產生器（兩種版式）。
-// 字串內容含中文，屬 i18n 範疇，於 Phase 4 處理。
+// 字串內容含中文，屬 i18n 字典範疇，待後續翻譯抽出。
 
 import { J2000 } from '../astro/constants.js';
 import { formatJD } from '../astro/julian-day.js';

@@ -1,5 +1,5 @@
 // 弧度⇄字串：度分秒（°′″）與時分秒（h m s）。
-// 字串內 °、′、″、h、m、s、分、秒 屬 i18n 範圍，Phase 4 抽出。
+// 字串內 °、′、″、h、m、s、分、秒 屬 i18n 字典範疇，待後續翻譯抽出。
 
 import { RAD_TO_ARCSEC } from './constants.js';
 

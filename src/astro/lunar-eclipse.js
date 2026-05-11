@@ -19,7 +19,12 @@ import { earthCoord } from './vsop87.js';
 import { moonCoord } from './elp-moon.js';
 import { meanSiderealTimeFromUT } from './sidereal-time.js';
 import { sunLongitudeAberration, sunLatitudeAberration, moonLongitudeAberration, moonLatitudeAberration } from './aberration.js';
-import { moonIlluminatedFraction } from './ephemeris.js';
+import {
+  moonIlluminatedFraction,
+  moonSunDiffToTimeFaster,
+  moonAngularVelocity,
+  earthAngularVelocity,
+} from './ephemeris.js';
 import { lineEarthIntersect } from './eclipse-geometry.js';
 
 export const lunarEclipse = {
@@ -145,5 +150,101 @@ export const lunarEclipse = {
     }
     s += '</table>';
     return s;
+  },
+
+  // 已知 t1 時刻星體位置、速度，求 x*x + y*y = r*r 時 t 的值。
+  lineT(G, v, u, r, n) {
+    const b = G.y * v - G.x * u;
+    const A = u * u + v * v;
+    const B = u * b;
+    const C = b * b - r * r * v * v;
+    let D = B * B - A * C;
+    if (D < 0) return 0;
+    D = Math.sqrt(D);
+    if (!n) D = -D;
+    return G.t + ((-B + D) / A - G.x) / v;
+  },
+
+  // 日月黃經緯差轉為日面中心直角坐標（用於月食）。
+  lecXY(jd, re) {
+    const T = jd / 36525;
+    const zs = earthCoord(T, -1, -1, -1);
+    zs[0] = normalizeAngle(zs[0] + Math.PI + sunLongitudeAberration(T));
+    zs[1] = -zs[1] + sunLatitudeAberration(T);
+    const zm = moonCoord(T, -1, -1, -1);
+    zm[0] = normalizeAngle(zm[0] + moonLongitudeAberration(T));
+    zm[1] += moonLatitudeAberration(T);
+
+    re.e_mRad  = MOON_RADIUS_FACTOR_PENUMBRA / zm[2];
+    re.eShadow  = (EARTH_MEAN_RADIUS_KM / zm[2] * RAD_TO_ARCSEC - (959.63 - 8.794) / zs[2]) * 51 / 50;
+    re.eShadow2 = (EARTH_MEAN_RADIUS_KM / zm[2] * RAD_TO_ARCSEC + (959.63 + 8.794) / zs[2]) * 51 / 50;
+
+    re.x = normalizeAngleSigned(zm[0] + Math.PI - zs[0]) * Math.cos((zm[1] - zs[1]) / 2);
+    re.y = zm[1] + zs[1];
+    re.mr = re.e_mRad  / RAD_TO_ARCSEC;
+    re.er = re.eShadow  / RAD_TO_ARCSEC;
+    re.Er = re.eShadow2 / RAD_TO_ARCSEC;
+    re.t  = jd;
+  },
+
+  // 月食食甚計算。jd 為近朔的力學時（誤差數天不影響）。
+  // 計算完成後 this.lT[0..6] 為食甚／初虧／復圓／半影食始／半影食終／食既／生光，this.sf 為食分，this.LX 為類型。
+  lecMax(jd) {
+    this.lT = new Array(7).fill(0);
+    this.sf = 0;
+    this.LX = '';
+
+    jd = moonSunDiffToTimeFaster(Math.floor((jd - 4) / 29.5306) * Math.PI * 2 + Math.PI) * 36525;
+
+    const G = {}, g = {};
+    let u, v;
+
+    // 粗略求極值
+    u = -18461 * Math.sin(0.057109 + 0.23089571958 * jd) * 0.23090 / RAD_TO_ARCSEC;
+    v = (moonAngularVelocity(jd / 36525) - earthAngularVelocity(jd / 36525)) / 36525;
+    this.lecXY(jd, G);
+    jd -= (G.y * u + G.x * v) / (u * u + v * v);
+
+    // 精密求極值
+    const dt = 60 / 86400;
+    this.lecXY(jd, G); this.lecXY(jd + dt, g);
+    u = (g.y - G.y) / dt;
+    v = (g.x - G.x) / dt;
+    const dtFinal = -(G.y * u + G.x * v) / (u * u + v * v);
+    jd += dtFinal;
+
+    // 求直線到影子中心的最小距離
+    const x = G.x + dtFinal * v;
+    const y = G.y + dtFinal * u;
+    const rmin = Math.sqrt(x * x + y * y);
+
+    if (rmin <= G.mr + G.er) { // 偏食
+      this.lT[1] = jd;
+      this.LX = '偏';
+      this.sf = (G.mr + G.er - rmin) / G.mr / 2;
+      this.lT[0] = this.lineT(G, v, u, G.mr + G.er, 0);
+      this.lecXY(this.lT[0], g);
+      this.lT[0] = this.lineT(g, v, u, g.mr + g.er, 0);
+      this.lT[2] = this.lineT(G, v, u, G.mr + G.er, 1);
+      this.lecXY(this.lT[2], g);
+      this.lT[2] = this.lineT(g, v, u, g.mr + g.er, 1);
+    }
+    if (rmin <= G.mr + G.Er) { // 半影食
+      this.lT[3] = this.lineT(G, v, u, G.mr + G.Er, 0);
+      this.lecXY(this.lT[3], g);
+      this.lT[3] = this.lineT(g, v, u, g.mr + g.Er, 0);
+      this.lT[4] = this.lineT(G, v, u, G.mr + G.Er, 1);
+      this.lecXY(this.lT[4], g);
+      this.lT[4] = this.lineT(g, v, u, g.mr + g.Er, 1);
+    }
+    if (rmin <= G.er - G.mr) { // 全食
+      this.LX = '全';
+      this.lT[5] = this.lineT(G, v, u, G.er - G.mr, 0);
+      this.lecXY(this.lT[5], g);
+      this.lT[5] = this.lineT(g, v, u, g.er - g.mr, 0);
+      this.lT[6] = this.lineT(G, v, u, G.er - G.mr, 1);
+      this.lecXY(this.lT[6], g);
+      this.lT[6] = this.lineT(g, v, u, g.er - g.mr, 1);
+    }
   },
 };

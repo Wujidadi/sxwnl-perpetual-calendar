@@ -1,5 +1,5 @@
 // 農曆基礎：天干地支、生肖、節氣、月日名稱、年號表、農曆節日查詢、八字、精氣朔。
-// 字串內容（中文）屬 i18n 範疇，於 Phase 4 處理。
+// 字串內容（中文）屬 i18n 字典範疇，待後續翻譯抽出。
 
 import { TWO_PI } from '../astro/constants.js';
 import { deltaT } from '../astro/delta-t.js';

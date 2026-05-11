@@ -1,5 +1,5 @@
 // 88 星座資料與恆星庫（含檢索／格式化函式）。
-// 字串內容含中英混雜，Phase 4 i18n 時拆分中文／英文欄位。
+// 字串內容含中英混雜，待後續 i18n 時拆分中文／英文欄位。
 
 import { RAD_TO_ARCSEC } from '../astro/constants.js';
 import { parseAngleToRadian } from '../astro/angle-format.js';

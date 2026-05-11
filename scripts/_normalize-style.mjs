@@ -58,6 +58,11 @@ const TARGET_FILES = [
   'src/ui/pages/ephemeris.js',
   'src/ui/pages/celestial.js',
   'src/ui/pages/stars.js',
+  'src/ui/pages/solar-eclipse.js',
+  'src/ui/pages/local-eclipse.js',
+  'src/ui/pages/eclipse-outline.js',
+  'src/ui/canvas/draw-helpers.js',
+  'src/ui/canvas/eclipse-local-view.js',
   'src/main.js',
 ];
 

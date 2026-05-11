@@ -373,13 +373,13 @@
 
 ### 檔案拆分
 
-| 新檔                            | 內容                              |
-| ------------------------------- | --------------------------------- |
-| `src/astro/rise-set.js`         | SZJ 日月升中天降                  |
-| `src/astro/planet-events.js`    | 行星天象函式族                    |
-| `src/astro/eclipse-geometry.js` | 線／圓／橢圓交點工具              |
-| `src/astro/lunar-eclipse.js`    | msc 月食計算                      |
-| `src/astro/solar-eclipse.js`    | ecFast、ysPL、rsGS、rsPL 日食計算 |
+| 新檔                            | 內容                        |
+| ------------------------------- | --------------------------- |
+| `src/astro/rise-set.js`         | SZJ 日月升中天降            |
+| `src/astro/planet-events.js`    | 行星天象函式族              |
+| `src/astro/eclipse-geometry.js` | 線／圓／橢圓交點工具        |
+| `src/astro/lunar-eclipse.js`    | msc 月食計算                |
+| `src/astro/solar-eclipse.js`    | ecFast、rsGS、rsPL 日食計算 |
 
 ### `rise-set.js`
 
@@ -427,23 +427,28 @@
 
 ### `lunar-eclipse.js`
 
-| 原名         | 含義       | 新名           |
-| ------------ | ---------- | -------------- |
-| `msc` (物件) | 月食計算器 | `lunarEclipse` |
+| 原名          | 含義         | 新名                  |
+| ------------- | ------------ | --------------------- |
+| `msc` (物件)  | 月食計算器   | `lunarEclipse`        |
+| `ysPL.lineT`  | 直線與圓交點 | `lunarEclipse.lineT`  |
+| `ysPL.lecXY`  | 月影 XY 座標 | `lunarEclipse.lecXY`  |
+| `ysPL.lecMax` | 月食食甚搜尋 | `lunarEclipse.lecMax` |
 
-> 物件內部 5 個方法（`calc`、`toHTML`、`lineT`、`lecXY`、`lecMax`）於 Phase 1 實作時審。
+> 原 `ysPL` 物件雖列於日食檔案，但其 `lineT`／`lecXY`／`lecMax` 三個方法實際服務於月食計算，
+> 重新命名時併入 `lunarEclipse`，其餘 19 個貝塞爾元素相關方法保留於日食檔案（見下節）。
 
 ### `solar-eclipse.js`
 
-| 原名          | 含義                 | 新名                     |
-| ------------- | -------------------- | ------------------------ |
-| `ecFast(jd)`  | 快速日食搜索         | `fastSolarEclipseSearch` |
-| `ysPL` (物件) | 日食貝塞爾元素引擎   | `solarEclipseBesselian`  |
-| `rsGS` (物件) | 局部日食（站心觀測） | `solarEclipseLocal`      |
-| `rsPL` (物件) | 全域日食批量         | `solarEclipseBatch`      |
+| 原名          | 含義                       | 新名                     |
+| ------------- | -------------------------- | ------------------------ |
+| `ecFast(jd)`  | 快速日食搜索               | `fastSolarEclipseSearch` |
+| `rsGS` (物件) | 日食貝塞爾元素引擎         | `solarEclipseBesselian`  |
+| `rsPL` (物件) | 站心日食＋全域路徑批量計算 | `solarEclipseLocal`      |
 
-> **`ysPL` 註解錯誤更正**：原註解「月食快速計算器」與內部 22 個方法（貝塞爾元素、南北界等）矛盾；新版 `solarEclipseBesselian.js` 檔頭加註說明此歷史誤標。  
-> 4 個物件的內部公開方法（合計約 35 個）於 Phase 1 實作時就近審。
+> **舊版命名混淆更正**：原 `rsGS`／`rsPL` 的字面含義（GS≈全球、PL≈local）與物件內方法的實際職責恰好相反——
+> `rsGS` 內含 `init`／`feature` 等貝塞爾元素相關運算（全球視角的事件特徵），`rsPL` 才是站心日食與全域路徑的計算器（提供 `secMax`、`nbj` 等方法）。
+> 重新命名時依「方法實際職責」而非字面縮寫對應到新名；另外原 `ysPL` 物件中三個服務於月食的方法則併入 `lunarEclipse`（見上節）。
+> 兩物件的內部公開方法於實作時就近審視。
 
 ## B7：`JW.js`
 

@@ -1,9 +1,10 @@
-// 日食計算：快速搜索、貝塞爾元素引擎、局部觀測、全域批量。
+// 日食計算：快速搜索 + 兩個計算物件
 //
-// solarEclipseBesselian（原 ysPL）：原註解標「月食快速計算器」，但內部 22 個方法皆為日食邏輯
-//   （貝塞爾元素 bse2cd／bse2db、影軸-貝塞爾交線、南北界 nanbei、界線 jieX 等）。新版以實際內容命名。
-// solarEclipseLocal（原 rsGS）：局部日食（站心觀測，secXY 求視位置、secMax 求食甚）。
-// solarEclipseBatch（原 rsPL）：全域日食批量計算（含 nbj 南北界）。
+// • fastSolarEclipseSearch(jd)：給定近朔的儒略日，快速判定該朔是否日食並回傳概要
+// • solarEclipseBesselian：日食的貝塞爾元素引擎；提供 init / chazhi / sun / moon / bse
+//   等內部運算，以及 feature(jd) 取得全球視角的事件特徵（最大食地標、食帶寬度等）
+// • solarEclipseLocal：站心日食 + 全球批量；提供 secMax(jd, L, fa, high) 計算
+//   給定站點的食甚與初虧復圓，nbj(jd) 計算南北界
 
 import {
   RAD_TO_ARCSEC,
@@ -72,7 +73,7 @@ import {
 } from './ephemeris.js';
 import { lineEllipsoidIntersect, lineEarthIntersectBessel, lineEarthIntersect, ellipseCircleIntersect, lineEllipseIntersect } from './eclipse-geometry.js';
 
-// ===== fastSolarEclipseSearch（原 ecFast）=====
+// ===== fastSolarEclipseSearch =====
 
 export function fastSolarEclipseSearch(jd){ // 快速日食搜索, jd為朔時間(J2000起算的儒略日數, 不必很精確)
  var re=new Object();
@@ -231,100 +232,9 @@ export function fastSolarEclipseSearch(jd){ // 快速日食搜索, jd為朔時�
 
 
 
-// ===== solarEclipseBesselian（原 ysPL）=====
+// ===== solarEclipseBesselian（原 rsGS）=====
 
-export const solarEclipseBesselian = { // 月食快速計算器
- lineT:function(G, v, u, r, n){// 已知t1時刻星體位置、速度，求x*x+y*y=r*r時, t的值
-  var b=G.y*v-G.x*u, A=u*u+v*v, B=u*b, C=b*b-r*r*v*v, D=B*B-A*C;
-  if(D<0) return 0;
-  D=Math.sqrt(D); if(!n) D=-D;
-  return G.t+((-B+D)/A-G.x)/v;
- },
- lecXY:function(jd, re){// 日月黃經緯差轉為日面中心直角坐標(用于月食)
-  var T=jd/36525, zm=new Array(), zs=new Array();
-
-  // =======太陽月亮黃道坐標========
-  zs = earthCoord(T, -1, -1, -1);   // 地球坐標
-  zs[0]  = normalizeAngle(zs[0]+Math.PI+sunLongitudeAberration(T));  zs[1]  =-zs[1] + sunLatitudeAberration(T); // 補上太陽光行差
-  zm = moonCoord(T, -1, -1, -1); // 月球坐標
-  zm[0]  = normalizeAngle( zm[0]+moonLongitudeAberration(T) );  zm[1] += moonLatitudeAberration(T);  // 補上月球光行差就可以了
-
-  // =======視半徑=======
-  re.e_mRad = MOON_RADIUS_FACTOR_PENUMBRA/zm[2]; // 月亮地心視半徑(角秒)
-  re.eShadow = (EARTH_MEAN_RADIUS_KM/zm[2]*RAD_TO_ARCSEC-(959.63-8.794)/zs[2] )*51/50; // 地本影在月球向徑處的半徑(角秒), 式中51/50是大氣厚度補償
-  re.eShadow2= (EARTH_MEAN_RADIUS_KM/zm[2]*RAD_TO_ARCSEC+(959.63+8.794)/zs[2] )*51/50; // 地半影在月球向徑處的半徑(角秒), 式中51/50是大氣厚度補償
-
-  re.x = normalizeAngleSigned(zm[0]+Math.PI-zs[0]) * Math.cos((zm[1]-zs[1])/2);
-  re.y = zm[1]+zs[1];
-  re.mr= re.e_mRad/RAD_TO_ARCSEC,  re.er=re.eShadow/RAD_TO_ARCSEC, re.Er=re.eShadow2/RAD_TO_ARCSEC;
-  re.t = jd;
- },
- lecMax:function(jd){ // 月食的食甚計算(jd為近朔的力學時, 誤差幾天不要緊)
-  this.lT=new Array();
-  for(var i=0;i<7;i++) this.lT[i]=0; // 分別是:食甚, 初虧, 複圓, 半影食始, 半影食終, 食既, 生光
-  this.sf=0;
-  this.LX='';
-
-  jd = moonSunDiffToTimeFaster( Math.floor((jd-4)/29.5306)*Math.PI*2 +Math.PI)*36525; // 低精度的朔(誤差10分鐘), 與食甚相差10分鐘左右
-
-  var g=new Object(), G=new Object(), u, v;
-
-  // 求極值(平均誤差數秒)
-  u = -18461 * Math.sin(0.057109+0.23089571958*jd)*0.23090/RAD_TO_ARCSEC; // 月日黃緯速度差
-  v = (moonAngularVelocity(jd/36525)-earthAngularVelocity(jd/36525))/36525; // 月日黃經速度差
-  this.lecXY(jd, G);
-  jd -= (G.y*u+G.x*v)/(u*u+v*v); // 極值時間
-
-  // 精密求極值
-  var dt=60/86400;
-  this.lecXY(jd, G); this.lecXY(jd+dt, g); // 精密差分得速度, 再求食甚
-  u = (g.y-G.y)/dt;
-  v = (g.x-G.x)/dt;
-  dt= -(G.y*u+G.x*v)/(u*u+v*v); jd += dt; // 極值時間
-
-  // 求直線到影子中心的最小值
-  var x=G.x+dt*v, y=G.y+dt*u, rmin=Math.sqrt(x*x+y*y);
-  // 注意, 以上計算得到了極值及最小距rmin, 但沒有再次計算極值時刻的半徑, 對以下的判斷造成一定的風險, 必要的話可以再算一次。不過必要性不很大，因為第一次極值計算已經很准確了, 誤差只有幾秒
-  // 求月球與影子的位置關系
-  if(rmin<=G.mr+G.er){ // 食計算
-   this.lT[1] = jd; // 食甚
-   this.LX = '偏';
-   this.sf=(G.mr+G.er-rmin)/G.mr/2; // 食分
-
-   this.lT[0] = this.lineT(G, v, u, G.mr+G.er, 0); // 初虧
-   this.lecXY(this.lT[0], g);
-   this.lT[0] = this.lineT(g, v, u, g.mr+g.er, 0); // 初虧再算一次
-
-   this.lT[2] = this.lineT(G, v, u, G.mr+G.er, 1); // 複圓
-   this.lecXY(this.lT[2], g);
-   this.lT[2] = this.lineT(g, v, u, g.mr+g.er, 1); // 複圓再算一次
-  }
-  if(rmin<=G.mr+G.Er){ // 半影食計算
-   this.lT[3] = this.lineT(G, v, u, G.mr+G.Er, 0); // 半影食始
-   this.lecXY(this.lT[3], g);
-   this.lT[3] = this.lineT(g, v, u, g.mr+g.Er, 0); // 半影食始再算一次
-
-   this.lT[4] = this.lineT(G, v, u, G.mr+G.Er, 1); // 半影食終
-   this.lecXY(this.lT[4], g);
-   this.lT[4] = this.lineT(g, v, u, g.mr+g.Er, 1); // 半影食終再算一次
-  }
-  if(rmin<=G.er-G.mr){ // 全食計算
-   this.LX = '全';
-   this.lT[5] = this.lineT(G, v, u, G.er-G.mr, 0); // 食既
-   this.lecXY(this.lT[5], g);
-   this.lT[5] = this.lineT(g, v, u, g.er-g.mr, 0); // 食既再算一次
-
-   this.lT[6] = this.lineT(G, v, u, G.er-G.mr, 1); // 生光
-   this.lecXY(this.lT[6], g);
-   this.lT[6] = this.lineT(g, v, u, g.er-g.mr, 1); // 生光再算一次
-  }
- }
-};
-;
-
-// ===== solarEclipseLocal（原 rsGS）=====
-
-export const solarEclipseLocal = {
+export const solarEclipseBesselian = {
  Zs   : new Array(),  // 日月赤道坐標插值表
  Zdt  : 0.04,   // 插值點之間的時間間距
  Zjd  : 0,      // 插值表中心時間
@@ -786,9 +696,9 @@ export const solarEclipseLocal = {
 };
 ;
 
-// ===== solarEclipseBatch（原 rsPL）=====
+// ===== solarEclipseLocal（原 rsPL）=====
 
-export const solarEclipseBatch = { // 日食批量快速計算器
+export const solarEclipseLocal = { // 日食批量快速計算器
  nasa_r:0, // 為1表示採用NASA的視徑比
  sT:new Array(), // 地方日食時間表
 
@@ -800,12 +710,12 @@ export const solarEclipseBatch = { // 日食批量快速計算器
 
   var z;
   // =======月亮========
-  z=rsGS.moon(jd); re.mCJ=z[0]; re.mCW=z[1]; re.mR=z[2]; // 月亮視赤經, 月球赤緯
+  z=solarEclipseBesselian.moon(jd); re.mCJ=z[0]; re.mCW=z[1]; re.mR=z[2]; // 月亮視赤經，月球赤緯
   var mShiJ = normalizeAngleSigned(gst + L - z[0]); // 得到此刻月亮時角
   applyParallax(z, mShiJ, fa, high); re.mCJ2=z[0], re.mCW2=z[1], re.mR2=z[2]; // 修正了視差的赤道坐標
 
   // =======太陽========
-  z=rsGS.sun(jd); re.sCJ=z[0]; re.sCW=z[1]; re.sR=z[2]; // 太陽視赤經, 太陽赤緯
+  z=solarEclipseBesselian.sun(jd); re.sCJ=z[0]; re.sCW=z[1]; re.sR=z[2]; // 太陽視赤經，太陽赤緯
   var sShiJ = normalizeAngleSigned(gst + L - z[0]); // 得到此刻太陽時角
   applyParallax(z, sShiJ, fa, high); re.sCJ2=z[0], re.sCW2=z[1], re.sR2=z[2]; // 修正了視差的赤道坐標
 
@@ -838,8 +748,8 @@ export const solarEclipseBatch = { // 日食批量快速計算器
   this.P2 = this.V2 = 0;  // 複圓方位, P北點起算, V頂點起算
   this.sun_s = this.sun_j = 0; // 日出日沒
 
-  rsGS.init(jd, 7);
-  jd=rsGS.Zjd; // 食甚初始估值為插值表中心時刻(粗朔)
+  solarEclipseBesselian.init(jd, 7);
+  jd=solarEclipseBesselian.Zjd; // 食甚初始估值為插值表中心時刻(粗朔)
 
   var G=new Object(), g=new Object();
   this.secXY(jd, L, fa, high, G);
@@ -857,6 +767,7 @@ export const solarEclipseBatch = { // 日食批量快速計算器
 
   // 求直線到太陽中心的最小值
   var maxsf = 0, maxjd = jd, rmin, ls;
+  var tt;
   for (i = -30; i < 30; i += 6) {
    tt = jd + i / 86400;
    this.secXY(tt, L, fa, high, g);
@@ -956,13 +867,13 @@ export const solarEclipseBatch = { // 日食批量快速計算器
   var zd=nutationMedium(jd/36525);
 
   this.P.g = meanSiderealTimeFromUT(jd-deltat, deltat) + zd[0]*Math.cos(E+zd[1]); // 真恆星時(不考慮非多項式部分)
-  this.P.S=rsGS.sun(jd);
-  this.P.M=rsGS.moon(jd);
+  this.P.S=solarEclipseBesselian.sun(jd);
+  this.P.M=solarEclipseBesselian.moon(jd);
 
   var t2=jd+60/86400;
   this.Q.g = meanSiderealTimeFromUT(t2-deltat, deltat) + zd[0]*Math.cos(E+zd[1]);
-  this.Q.S=rsGS.sun(t2);
-  this.Q.M=rsGS.moon(t2);
+  this.Q.S=solarEclipseBesselian.sun(t2);
+  this.Q.M=solarEclipseBesselian.moon(t2);
 
   // 轉為直角坐標
   var z1=new Array(), z2=new Array();
@@ -1023,7 +934,7 @@ export const solarEclipseBatch = { // 日食批量快速計算器
   if(p.sr>p.mr) re.c='环';
  },
  nbj:function(jd){ // 南北界計算
-  rsGS.init(jd, 7);
+  solarEclipseBesselian.init(jd, 7);
   var i, G=new Object(), V=this.V;
   for(i=0;i<10;i++) V[i]=100; this.Vc='', this.Vb=''; // 返回初始化, 緯度值為100表示無解, 經度100也是無解, 但在以下程序中經度會被轉為-PI到+PI
 
