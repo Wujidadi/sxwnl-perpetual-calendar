@@ -54,6 +54,10 @@ const TARGET_FILES = [
   'src/ui/pages/tools.js',
   'src/ui/pages/tools/date-calc.js',
   'src/ui/pages/tools/pi-calc.js',
+  'src/ui/pages/year-calendar.js',
+  'src/ui/pages/ephemeris.js',
+  'src/ui/pages/celestial.js',
+  'src/ui/pages/stars.js',
   'src/main.js',
 ];
 

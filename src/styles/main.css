@@ -308,6 +308,30 @@ input, select { font-family: inherit; }
   border-bottom-color: var(--color-accent);
 }
 
+/* === 年曆輸出 === */
+.year-cal-output {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.9;
+  word-break: break-all;
+}
+.year-cal-output font[color="red"] {
+  color: var(--color-holiday);
+  font-weight: 500;
+}
+
+/* === 文字輸出區（星曆／天象等共用） === */
+.text-output {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  white-space: pre-wrap;
+  background: var(--color-bg);
+  padding: var(--space-3);
+  border-radius: var(--radius-1);
+  margin: 0;
+  line-height: 1.7;
+}
+
 /* === 工具：PI 輸出區 === */
 .tools-pi-output { font-size: 13px; }
 .tools-pi-output .pi-block {
