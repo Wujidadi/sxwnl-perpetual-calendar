@@ -43,6 +43,18 @@ const TARGET_FILES = [
   'src/utils/year-conv.js',
   'src/utils/time.js',
   'src/utils/storage.js',
+  'src/ui/app.js',
+  'src/ui/pages.js',
+  'src/ui/pages/stub.js',
+  'src/ui/pages/month-calendar.js',
+  'src/ui/pages/bazi.js',
+  'src/ui/pages/rise-set.js',
+  'src/ui/pages/shuoqi.js',
+  'src/ui/pages/constants.js',
+  'src/ui/pages/tools.js',
+  'src/ui/pages/tools/date-calc.js',
+  'src/ui/pages/tools/pi-calc.js',
+  'src/main.js',
 ];
 
 // 簡體 → 繁體字元對應（涵蓋本專案註釋中出現的所有簡體字）。

@@ -237,6 +237,107 @@ input, select { font-family: inherit; }
 .calendar-events ul { margin: 0; padding-left: var(--space-4); font-size: 13px; }
 .calendar-events li { margin: 2px 0; color: var(--color-text-soft); }
 
+/* === 資料表 === */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2);
+  overflow: hidden;
+  font-size: 14px;
+  margin-bottom: var(--space-3);
+}
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
+}
+.data-table thead th {
+  background: var(--color-bg);
+  color: var(--color-text-soft);
+  font-weight: 500;
+  font-size: 13px;
+}
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  background: var(--color-bg);
+  padding: 1px 6px;
+  border-radius: var(--radius-1);
+}
+.data-table .mono { font-family: var(--font-mono); font-size: 13px; }
+.data-table .num  { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* === 頁面區塊（卡片）=== */
+.page-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.page-card h3 {
+  margin: 0 0 var(--space-3);
+  font-size: 15px;
+  color: var(--color-text-soft);
+  font-weight: 500;
+}
+
+/* === 子分頁（tabs in tools）=== */
+.subtabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space-3);
+}
+.subtab {
+  background: none;
+  border: none;
+  padding: var(--space-2) var(--space-4);
+  color: var(--color-text-soft);
+  font-size: 14px;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.subtab[aria-current="page"] {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+}
+
+/* === 工具：PI 輸出區 === */
+.tools-pi-output { font-size: 13px; }
+.tools-pi-output .pi-block {
+  white-space: pre-wrap;
+  word-break: break-all;
+  background: var(--color-bg);
+  padding: var(--space-3);
+  border-radius: var(--radius-1);
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+/* === 八字 12 時辰 === */
+.bazi-hours {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 2;
+  word-break: break-all;
+  margin: 0;
+}
+.bazi-hours font[color="red"] {
+  background: var(--color-holiday);
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: var(--radius-1);
+}
+
 /* === Stub 頁面 === */
 .page-stub {
   background: var(--color-surface);
@@ -255,6 +356,7 @@ input, select { font-family: inherit; }
   .calendar-cell { min-height: 64px; padding: var(--space-1); }
   .calendar-day-num { font-size: 16px; }
   .app-nav-item { padding: var(--space-2); font-size: 13px; }
+  .sq-grid { grid-template-columns: 1fr !important; }
 }
 
 @media (max-width: 480px) {
