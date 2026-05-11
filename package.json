@@ -1,0 +1,20 @@
+{
+  "name": "perpetual-calendar",
+  "version": "0.0.0",
+  "private": true,
+  "description": "壽星萬年曆現代化改寫版（原 sxwnl 5.10.3 移植）",
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes serve .",
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/",
+    "golden": "node scripts/generate-golden.mjs",
+    "docify": "node scripts/docify-legacy.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  }
+}
