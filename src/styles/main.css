@@ -1,2 +1,275 @@
-/* 占位。實際樣式將於 Phase 3 UI 重構時補上。 */
-body { font-family: -apple-system, "Helvetica Neue", Arial, "PingFang TC", sans-serif; }
+/* === 基礎變數 === */
+:root {
+  --color-bg:        #f7f7f8;
+  --color-surface:   #ffffff;
+  --color-border:    #e2e4e9;
+  --color-text:      #1f2328;
+  --color-text-soft: #5a6068;
+  --color-accent:    #1f4dba;
+  --color-accent-soft: #e8eefb;
+  --color-holiday:   #c5364a;
+  --color-weekend:   #f3f4f6;
+  --color-lunar:     #5a6068;
+  --color-today-bg:  #1f4dba;
+  --color-today-fg:  #ffffff;
+  --color-term:      #1f8a4c;
+  --color-phase:     #c08200;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  --radius-1: 4px;
+  --radius-2: 8px;
+  --radius-3: 12px;
+
+  --font-sans: -apple-system, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Consolas, Menlo, monospace;
+}
+
+/* === 重置 === */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: var(--color-bg);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+button { font-family: inherit; cursor: pointer; }
+input, select { font-family: inherit; }
+
+/* === 應用框架 === */
+#app[data-loading="true"]::after {
+  content: "載入中…";
+  display: block;
+  padding: var(--space-5);
+  text-align: center;
+  color: var(--color-text-soft);
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.app-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.app-nav {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  padding: 0 var(--space-2);
+}
+.app-nav-item {
+  background: none;
+  border: none;
+  padding: var(--space-3) var(--space-3);
+  color: var(--color-text-soft);
+  font-size: 14px;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+.app-nav-item:hover { color: var(--color-text); }
+.app-nav-item[aria-current="page"] {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+  font-weight: 500;
+}
+
+.app-main {
+  flex: 1;
+  padding: var(--space-4);
+  max-width: 1080px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* === 表單元件 === */
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.form-row label {
+  font-size: 14px;
+  color: var(--color-text-soft);
+}
+.form-row input[type="number"],
+.form-row input[type="text"],
+.form-row select {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-1);
+  background: var(--color-surface);
+  font-size: 14px;
+  min-width: 80px;
+}
+.btn {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-1);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 14px;
+}
+.btn:hover { background: var(--color-accent-soft); }
+.btn-primary {
+  background: var(--color-accent);
+  color: #fff;
+  border-color: var(--color-accent);
+}
+.btn-primary:hover { background: #1a3f99; border-color: #1a3f99; }
+
+/* === 月曆 === */
+.calendar-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+.calendar-title {
+  font-size: 20px;
+  font-weight: 600;
+}
+.calendar-meta {
+  color: var(--color-text-soft);
+  font-size: 14px;
+}
+.calendar-meta strong { color: var(--color-holiday); font-weight: 500; }
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--color-border);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2);
+  overflow: hidden;
+}
+.calendar-weekday {
+  background: var(--color-surface);
+  text-align: center;
+  padding: var(--space-2);
+  font-size: 13px;
+  color: var(--color-text-soft);
+  font-weight: 500;
+}
+.calendar-cell {
+  background: var(--color-surface);
+  padding: var(--space-2) var(--space-2);
+  min-height: 76px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+.calendar-cell.is-weekend { background: var(--color-weekend); }
+.calendar-cell.is-empty   { background: var(--color-bg); }
+.calendar-cell.is-today {
+  outline: 2px solid var(--color-today-bg);
+  outline-offset: -2px;
+}
+.calendar-cell.is-today .calendar-day-num {
+  background: var(--color-today-bg);
+  color: var(--color-today-fg);
+  border-radius: 50%;
+  width: 28px; height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.calendar-day-num {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1;
+}
+.calendar-day-num.is-holiday { color: var(--color-holiday); }
+.calendar-lunar { font-size: 12px; color: var(--color-lunar); }
+.calendar-lunar.is-month { color: var(--color-text); font-weight: 500; }
+.calendar-festival { font-size: 11px; color: var(--color-holiday); margin-top: auto; }
+.calendar-festival.muted { color: var(--color-text-soft); }
+.calendar-markers { font-size: 11px; display: flex; gap: 2px; }
+.calendar-markers .term  { color: var(--color-term); }
+.calendar-markers .phase { color: var(--color-phase); }
+
+/* === 月底事件清單 === */
+.calendar-events {
+  margin-top: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2);
+  padding: var(--space-3) var(--space-4);
+}
+.calendar-events h3 {
+  font-size: 14px;
+  margin: 0 0 var(--space-2);
+  color: var(--color-text-soft);
+  font-weight: 500;
+}
+.calendar-events ul { margin: 0; padding-left: var(--space-4); font-size: 13px; }
+.calendar-events li { margin: 2px 0; color: var(--color-text-soft); }
+
+/* === Stub 頁面 === */
+.page-stub {
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-2);
+  padding: var(--space-6);
+  text-align: center;
+  color: var(--color-text-soft);
+}
+.page-stub h2 { margin: 0 0 var(--space-2); color: var(--color-text); font-size: 18px; }
+.page-stub p { margin: var(--space-2) 0; }
+
+/* === RWD === */
+@media (max-width: 720px) {
+  .app-main { padding: var(--space-3); }
+  .calendar-cell { min-height: 64px; padding: var(--space-1); }
+  .calendar-day-num { font-size: 16px; }
+  .app-nav-item { padding: var(--space-2); font-size: 13px; }
+}
+
+@media (max-width: 480px) {
+  .calendar-cell { min-height: 56px; }
+  .calendar-day-num { font-size: 14px; }
+  .calendar-lunar, .calendar-festival { font-size: 10px; }
+}
+
+/* === 致謝 === */
+.app-footer {
+  padding: var(--space-4);
+  text-align: center;
+  color: var(--color-text-soft);
+  font-size: 12px;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+.app-footer a { color: var(--color-accent); text-decoration: none; }
