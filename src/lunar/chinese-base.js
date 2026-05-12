@@ -1,5 +1,5 @@
 // 農曆基礎：天干地支、生肖、節氣、月日名稱、年號表、農曆節日查詢、八字、精氣朔。
-// 字串內容（中文）屬 i18n 字典範疇，待後續翻譯抽出。
+// 中文字串透過 i18n 字典（lunar.* / weekday.*）提供當前語系版本。
 
 import { TWO_PI } from '../astro/constants.js';
 import { deltaT } from '../astro/delta-t.js';
@@ -10,18 +10,9 @@ import {
   moonSunDiffToTime,
 } from '../astro/ephemeris.js';
 import { equationOfTimeFast } from '../astro/sidereal-time.js';
+import { t } from '../i18n/index.js';
 
-// === 文字資料 ===
-
-export const CHINESE_NUMERALS = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
-export const HEAVENLY_STEMS   = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
-export const EARTHLY_BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
-export const ZODIAC_ANIMALS   = ['鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊', '猴', '鸡', '狗', '猪'];
-export const WESTERN_ZODIAC_SIGNS = ['摩羯', '水瓶', '双鱼', '白羊', '金牛', '双子', '巨蟹', '狮子', '处女', '天秤', '天蝎', '射手'];
-export const LUNAR_PHASE_NAMES = ['朔', '上弦', '望', '下弦'];
-export const SOLAR_TERM_NAMES  = ['冬至', '小寒', '大寒', '立春', '雨水', '惊蛰', '春分', '清明', '谷雨', '立夏', '小满', '芒种', '夏至', '小暑', '大暑', '立秋', '处暑', '白露', '秋分', '寒露', '霜降', '立冬', '小雪', '大雪'];
-export const LUNAR_MONTH_NAMES = ['十一', '十二', '正', '二', '三', '四', '五', '六', '七', '八', '九', '十']; // 建寅
-export const LUNAR_DAY_NAMES   = ['初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十', '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十', '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十', '卅一'];
+// 注意：節日字串目前仍為簡體中文，將於後續批次抽入字典。
 
 // === 年號表（紀年資料）===
 //
@@ -99,7 +90,7 @@ export function getReignTitle(y) {
 export function getLunarDayName(u, r) {
   // 按農曆日期查找重要節假日
   const d = u.lunarMonthName + (u.lunarMonthName.length < 2 ? '月' : '') + u.lunarDayName;
-  if (u.lunarLeap !== '闰') {
+  if (u.lunarLeap !== t('lunar.leapPrefix')) {
     if (d === '正月初一') { r.holidayA += '春节 ';     r.isHoliday = 1; }
     if (d === '正月初二') { r.holidayB += '大年初二 '; r.isHoliday = 1; }
     if (d === '五月初五') { r.holidayA += '端午节 ';   r.isHoliday = 1; }
@@ -143,7 +134,7 @@ export function getLunarDayName(u, r) {
   // 農曆雜節
   let w;
   if (u.daysSinceDongzhi >= 0 && u.daysSinceDongzhi < 81) { // 數九
-    w = CHINESE_NUMERALS[Math.floor(u.daysSinceDongzhi / 9) + 1];
+    w = t('lunar.numerals')[Math.floor(u.daysSinceDongzhi / 9) + 1];
     if (u.daysSinceDongzhi % 9 === 0) r.holidayB += '『' + w + '九』 ';
     else                              r.holidayC += w + '九第' + (u.daysSinceDongzhi % 9 + 1) + '天 ';
   }
@@ -170,16 +161,18 @@ export function computeBazi(jd, J, ob) {
   const D = Math.floor(jd);
   const SC = Math.floor((jd - D) * 12);
 
+  const stems = t('lunar.heavenlyStems');
+  const branches = t('lunar.earthlyBranches');
   let v;
-  v = Math.floor(k / 12 + 6000000);   ob.baziYear  = HEAVENLY_STEMS[v % 10] + EARTHLY_BRANCHES[v % 12];
-  v = k + 2 + 60000000;               ob.baziMonth = HEAVENLY_STEMS[v % 10] + EARTHLY_BRANCHES[v % 12];
-  v = D - 6 + 9000000;                ob.baziDay   = HEAVENLY_STEMS[v % 10] + EARTHLY_BRANCHES[v % 12];
-  v = (D - 1) * 12 + 90000000 + SC;   ob.baziHour  = HEAVENLY_STEMS[v % 10] + EARTHLY_BRANCHES[v % 12];
+  v = Math.floor(k / 12 + 6000000);   ob.baziYear  = stems[v % 10] + branches[v % 12];
+  v = k + 2 + 60000000;               ob.baziMonth = stems[v % 10] + branches[v % 12];
+  v = D - 6 + 9000000;                ob.baziDay   = stems[v % 10] + branches[v % 12];
+  v = (D - 1) * 12 + 90000000 + SC;   ob.baziHour  = stems[v % 10] + branches[v % 12];
 
   v -= SC;
   ob.baziHoursAll = '';
   for (let i = 0; i < 13; i++) { // 一天中包含 13 個紀時
-    let c = HEAVENLY_STEMS[(v + i) % 10] + EARTHLY_BRANCHES[(v + i) % 12];
+    let c = stems[(v + i) % 10] + branches[(v + i) % 12];
     if (SC === i) { ob.baziHour = c; c = '<font color=red>' + c + '</font>'; }
     ob.baziHoursAll += (i ? ' ' : '') + c;
   }

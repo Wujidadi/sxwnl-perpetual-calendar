@@ -4,7 +4,7 @@
 //   - `gregorianToJD(year, month, day)`：公曆 → 儒略日；`day` 可含小數天（=時分秒）。
 //   - `jdToGregorian(jd)`：儒略日 → `{ year, month, day, hour, minute, second }`。
 
-export const WEEKDAY_NAMES = ['日', '一', '二', '三', '四', '五', '六', '七'];
+// 星期名稱透過 i18n 字典提供（weekday.short / weekday.full）。
 
 // 公曆 → 儒略日；day 可含小數天（=時分秒）。
 export function gregorianToJD(year, month, day) {

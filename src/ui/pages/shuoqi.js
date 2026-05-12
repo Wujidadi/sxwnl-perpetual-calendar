@@ -3,11 +3,11 @@
 import { J2000 } from '../../astro/constants.js';
 import { gregorianToJD, jdToGregorian } from '../../astro/julian-day.js';
 import {
-  SOLAR_TERM_NAMES,
   preciseSolarTermFromJD,
   preciseNewMoonFromJD,
 } from '../../lunar/chinese-base.js';
 import { shuoQiCalculator } from '../../lunar/ssq.js';
+import { t } from '../../i18n/index.js';
 
 // 將 J2000 起算的儒略日（+8 時區）格式化為 YYYY-MM-DD HH:MM:SS。
 function formatBeijingTime(jdJ2000) {
@@ -63,9 +63,10 @@ export class ShuoQiPage {
 
     // 節氣：centralQiList[0..24] 對應冬至…下一冬至（25 個）；
     // 顯示在該年內者：根據 G 曆年份判定。實務上 25 個都列出（含跨年冬至）。
+    const terms = t('lunar.terms');
     const qiRows = [];
     for (let i = 0; i < 25; i++) {
-      const name = SOLAR_TERM_NAMES[i % 24];
+      const name = terms[i % 24];
       const precise = preciseSolarTermFromJD(qi[i]);
       const time = formatBeijingTime(precise);
       qiRows.push(`<tr><td>${name}</td><td class="mono">${time}</td></tr>`);
@@ -75,8 +76,8 @@ export class ShuoQiPage {
     const moonRows = [];
     for (let i = 0; i < 14; i++) {
       if (hs[i + 1] > qi[24]) break; // 已過跨年冬至
-      const monthLabel = (leap && i === leap ? '閏' : '') + ym[i] + '月';
-      const big = dx[i] > 29 ? '大' : '小';
+      const monthLabel = (leap && i === leap ? t('lunar.leapPrefix') : '') + ym[i] + '月';
+      const big = dx[i] > 29 ? t('lunar.bigMonthSuffix') : t('lunar.smallMonthSuffix');
       const precise = preciseNewMoonFromJD(hs[i]);
       const time = formatBeijingTime(precise);
       moonRows.push(`<tr><td>${monthLabel}${big}</td><td class="mono">${time}</td></tr>`);

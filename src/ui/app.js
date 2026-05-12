@@ -1,7 +1,8 @@
 // 應用根元件：標頭、分頁導覽、頁面區、頁尾。
-// 維護當前分頁狀態與生命週期。
+// 維護當前分頁狀態與生命週期；含語系切換器。
 
 import { PAGES, findPage } from './pages.js';
+import { t, getLocale, setLocale, getSupported, onLocaleChange } from '../i18n/index.js';
 
 const STORAGE_KEY = 'pc.activePageId';
 
@@ -20,7 +21,11 @@ export class App {
     root.innerHTML = `
       <div class="app-shell">
         <header class="app-header">
-          <h1 class="app-title">萬年曆</h1>
+          <h1 class="app-title" id="app-title"></h1>
+          <div class="app-locale-switch">
+            <label for="app-locale-select" id="app-locale-label"></label>
+            <select id="app-locale-select"></select>
+          </div>
         </header>
         <nav class="app-nav" aria-label="主導覽"></nav>
         <main class="app-main" id="page-container"></main>
@@ -31,9 +36,32 @@ export class App {
     `;
     this.nav = root.querySelector('.app-nav');
     this.pageContainer = root.querySelector('#page-container');
+    this.renderTitle();
+    this.renderLocaleSwitch();
     this.renderNav();
     this.navigate(this.readActivePageId() || PAGES[0].id);
     this.bindHash();
+    onLocaleChange(() => this.onLocaleChanged());
+  }
+
+  renderTitle() {
+    this.root.querySelector('#app-title').textContent = t('ui.appTitle');
+    this.root.querySelector('#app-locale-label').textContent = t('ui.locale') + '：';
+  }
+
+  renderLocaleSwitch() {
+    const sel = this.root.querySelector('#app-locale-select');
+    sel.innerHTML = getSupported()
+      .map((s) => `<option value="${s.code}">${s.name}</option>`)
+      .join('');
+    sel.value = getLocale();
+    sel.addEventListener('change', () => setLocale(sel.value));
+  }
+
+  onLocaleChanged() {
+    this.renderTitle();
+    this.renderNav();
+    if (this.currentPage) this.navigate(this.currentPage.id);
   }
 
   renderNav() {

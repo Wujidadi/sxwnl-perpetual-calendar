@@ -74,6 +74,22 @@ input, select { font-family: inherit; }
   font-weight: 600;
   margin: 0;
 }
+.app-locale-switch {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 13px;
+  color: var(--color-text-soft);
+}
+.app-locale-switch select {
+  padding: 2px 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-1);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 13px;
+}
 
 .app-nav {
   background: var(--color-surface);

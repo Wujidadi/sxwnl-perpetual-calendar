@@ -1,8 +1,9 @@
 // 常數分頁：以分組形式列出物理與天文常數。
 
 import * as C from '../../astro/constants.js';
+import { t } from '../../i18n/index.js';
 
-const GROUPS = [
+function buildGroups() { return [
   {
     title: '地球',
     rows: [
@@ -36,7 +37,7 @@ const GROUPS = [
   {
     title: '行星',
     rows: [
-      ['PLANET_NAMES',     '行星名（含冥王星）', '',     C.PLANET_NAMES.join('、')],
+      ['PLANET_NAMES',     '行星名（含冥王星）', '',     t('astro.planets').join('、')],
       ['SYNODIC_PERIODS',  '行星會合週期',       '日',   C.SYNODIC_PERIODS.join(', ')],
     ],
   },
@@ -50,7 +51,7 @@ const GROUPS = [
       ['J2000',         'J2000 標準曆元（儒略日）',    'JD',    C.J2000],
     ],
   },
-];
+]; }
 
 function formatValue(v) {
   if (typeof v === 'number') {
@@ -66,7 +67,7 @@ export class ConstantsPage {
     const root = document.createElement('section');
     root.className = 'page-constants';
     let html = '<h2 style="margin-top:0">物理與天文常數</h2>';
-    for (const g of GROUPS) {
+    for (const g of buildGroups()) {
       html += `<h3 style="margin-top:24px;margin-bottom:8px">${g.title}</h3>`;
       html += '<table class="data-table"><thead><tr>'
             + '<th style="width:34%">識別字</th>'

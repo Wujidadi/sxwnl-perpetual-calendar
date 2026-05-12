@@ -2,8 +2,7 @@
 // 呈現指定公曆年月的三合曆（公曆／農曆／節氣／月相／節日）；含年月切換與今日標記。
 
 import { LunarMonth } from '../../lunar/lunar-month.js';
-
-const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
+import { t } from '../../i18n/index.js';
 
 export class MonthCalendarPage {
   constructor() {
@@ -96,10 +95,12 @@ export class MonthCalendarPage {
   renderGrid() {
     const grid = document.createElement('div');
     grid.className = 'calendar-grid';
-    for (const w of WEEKDAYS) {
+    const weekdays = t('weekday.short');
+    const weekPrefix = t('weekday.prefix');
+    for (const w of weekdays) {
       const h = document.createElement('div');
       h.className = 'calendar-weekday';
-      h.textContent = '週' + w;
+      h.textContent = weekPrefix + w;
       grid.appendChild(h);
     }
     const today = new Date();
@@ -209,7 +210,7 @@ function trimFestival(s) {
 
 function buildTooltip(day) {
   const lines = [];
-  lines.push(`${day.year}-${pad2(day.month)}-${pad2(day.day)}（週${WEEKDAYS[day.weekday]}）`);
+  lines.push(`${day.year}-${pad2(day.month)}-${pad2(day.day)}（${t('weekday.prefix')}${t('weekday.short')[day.weekday]}）`);
   lines.push(`農曆 ${day.lunarLeap || ''}${day.lunarMonthName}月${day.lunarDayName}`);
   lines.push(`${day.lunarYearGanZhi}年 ${day.lunarMonthGanZhi}月 ${day.lunarDayGanZhi}日 ${day.zodiacSign}`);
   if (day.hijriYear) lines.push(`回曆 ${day.hijriYear}/${pad2(day.hijriMonth)}/${pad2(day.hijriDay)}`);

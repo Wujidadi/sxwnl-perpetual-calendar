@@ -25,13 +25,6 @@ import {
   moonSunApparentLongDiff,
 } from '../astro/ephemeris.js';
 import {
-  HEAVENLY_STEMS,
-  EARTHLY_BRANCHES,
-  ZODIAC_ANIMALS,
-  WESTERN_ZODIAC_SIGNS,
-  LUNAR_PHASE_NAMES,
-  SOLAR_TERM_NAMES,
-  LUNAR_DAY_NAMES,
   getReignTitle,
   getLunarDayName,
   preciseSolarTermFromLongitude,
@@ -39,6 +32,7 @@ import {
 } from './chinese-base.js';
 import { getDayName as getGregorianDayName, getHijriDate } from './gregorian-base.js';
 import { shuoQiCalculator } from './ssq.js';
+import { t } from '../i18n/index.js';
 
 // 取得月首儒略日（北京中午 12:00:00.1，以原始實作的浮點精度為準）。
 function firstDayJD(year, month) {
@@ -72,10 +66,19 @@ export class LunarMonth {
     this.firstJD      = Bd0;
     this.monthLength  = Bdn;
 
+    const stems    = t('lunar.heavenlyStems');
+    const branches = t('lunar.earthlyBranches');
+    const zodiac   = t('lunar.zodiac');
+    const dayNames = t('lunar.dayNames');
+    const phases   = t('lunar.phases');
+    const terms    = t('lunar.terms');
+    const western  = t('lunar.westernZodiac');
+    const leapPrefix = t('lunar.leapPrefix');
+
     // 干支紀年與生肖
     const c = year - 1984 + 12000;
-    this.yearGanZhi   = HEAVENLY_STEMS[c % 10] + EARTHLY_BRANCHES[c % 12];
-    this.zodiacAnimal = ZODIAC_ANIMALS[c % 12];
+    this.yearGanZhi   = stems[c % 10] + branches[c % 12];
+    this.zodiacAnimal = zodiac[c % 12];
     this.reignTitle   = getReignTitle(year);
 
     // 提取各日資訊
@@ -102,7 +105,7 @@ export class LunarMonth {
       if (mk < 13 && shuoQiCalculator.newMoonList[mk + 1] <= ob.jdNoon) mk++;
 
       ob.lunarDayIndex      = ob.jdNoon - shuoQiCalculator.newMoonList[mk];
-      ob.lunarDayName       = LUNAR_DAY_NAMES[ob.lunarDayIndex];
+      ob.lunarDayName       = dayNames[ob.lunarDayIndex];
       ob.daysSinceDongzhi   = ob.jdNoon - shuoQiCalculator.centralQiList[0];
       ob.daysSinceXiazhi    = ob.jdNoon - shuoQiCalculator.centralQiList[12];
       ob.daysSinceLiqiu     = ob.jdNoon - shuoQiCalculator.centralQiList[15];
@@ -112,7 +115,7 @@ export class LunarMonth {
       if (ob.jdNoon === shuoQiCalculator.newMoonList[mk] || ob.jdNoon === Bd0) {
         ob.lunarMonthName       = shuoQiCalculator.monthNames[mk];
         ob.lunarMonthLength     = shuoQiCalculator.monthLengths[mk];
-        ob.lunarLeap            = (shuoQiCalculator.leapMonth && shuoQiCalculator.leapMonth === mk) ? '闰' : '';
+        ob.lunarLeap            = (shuoQiCalculator.leapMonth && shuoQiCalculator.leapMonth === mk) ? leapPrefix : '';
         ob.lunarNextMonthName   = mk < 13 ? shuoQiCalculator.monthNames[mk + 1] : '未知';
       } else {
         const prev = this.days[i - 1];
@@ -124,7 +127,7 @@ export class LunarMonth {
 
       let qk = Math.floor((ob.jdNoon - shuoQiCalculator.centralQiList[0] - 7) / 15.2184);
       if (qk < 23 && ob.jdNoon >= shuoQiCalculator.centralQiList[qk + 1]) qk++;
-      ob.solarTermLabel = (ob.jdNoon === shuoQiCalculator.centralQiList[qk]) ? SOLAR_TERM_NAMES[qk] : '';
+      ob.solarTermLabel = (ob.jdNoon === shuoQiCalculator.centralQiList[qk]) ? terms[qk] : '';
 
       ob.moonPhaseName = ob.moonPhaseJD = ob.moonPhaseTimeStr = '';
       ob.solarTermName = ob.solarTermJD = ob.solarTermTimeStr = '';
@@ -143,8 +146,8 @@ export class LunarMonth {
       D += 5810;
       ob.lunarYearNumNewYear = Math.floor(D / 365.2422 + 0.5);
 
-      D = ob.lunarYearNum        + 12000; ob.lunarYearGanZhi  = HEAVENLY_STEMS[D % 10] + EARTHLY_BRANCHES[D % 12];
-      D = ob.lunarYearNumNewYear + 12000; ob.lunarYearGanZhi2 = HEAVENLY_STEMS[D % 10] + EARTHLY_BRANCHES[D % 12];
+      D = ob.lunarYearNum        + 12000; ob.lunarYearGanZhi  = stems[D % 10] + branches[D % 12];
+      D = ob.lunarYearNumNewYear + 12000; ob.lunarYearGanZhi2 = stems[D % 10] + branches[D % 12];
       ob.lunarYearHuangdi = ob.lunarYearNumNewYear + 1984 + 2698;
 
       // 紀月（1998-12-7 大雪起算，0 為甲子）
@@ -152,16 +155,16 @@ export class LunarMonth {
       if (mk < 12 && ob.jdNoon >= shuoQiCalculator.centralQiList[2 * mk + 1]) mk++;
       D = mk + Math.floor((shuoQiCalculator.centralQiList[12] + 390) / 365.2422) * 12 + 900000;
       ob.lunarMonthNum    = D % 12;
-      ob.lunarMonthGanZhi = HEAVENLY_STEMS[D % 10] + EARTHLY_BRANCHES[D % 12];
+      ob.lunarMonthGanZhi = stems[D % 10] + branches[D % 12];
 
       // 紀日（2000-1-7 起算）
       D = ob.jdNoon - 6 + 9000000;
-      ob.lunarDayGanZhi = HEAVENLY_STEMS[D % 10] + EARTHLY_BRANCHES[D % 12];
+      ob.lunarDayGanZhi = stems[D % 10] + branches[D % 12];
 
       // 星座
       mk = Math.floor((ob.jdNoon - shuoQiCalculator.centralQiList[0] - 15) / 30.43685);
       if (mk < 11 && ob.jdNoon >= shuoQiCalculator.centralQiList[2 * mk + 2]) mk++;
-      ob.zodiacSign = WESTERN_ZODIAC_SIGNS[(mk + 12) % 12] + '座';
+      ob.zodiacSign = western[(mk + 12) % 12] + '座';
 
       // 回曆
       getHijriDate(ob.jdNoon, ob);
@@ -187,7 +190,7 @@ export class LunarMonth {
       if (D >= Bd0 + Bdn) break;
       if (D < Bd0) continue;
       const ob = this.days[D - Bd0];
-      ob.moonPhaseName    = LUNAR_PHASE_NAMES[xn];
+      ob.moonPhaseName    = phases[xn];
       ob.moonPhaseJD      = d;
       ob.moonPhaseTimeStr = formatTimeOfDay(d);
       if (D + 5 >= Bd0 + Bdn) break;
@@ -204,7 +207,7 @@ export class LunarMonth {
       if (D >= Bd0 + Bdn) break;
       if (D < Bd0) continue;
       const ob = this.days[D - Bd0];
-      ob.solarTermName    = SOLAR_TERM_NAMES[xn];
+      ob.solarTermName    = terms[xn];
       ob.solarTermJD      = d;
       ob.solarTermTimeStr = formatTimeOfDay(d);
       if (D + 12 >= Bd0 + Bdn) break;

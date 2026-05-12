@@ -14,22 +14,27 @@ import { StarsPage } from './pages/stars.js';
 import { SolarEclipsePage } from './pages/solar-eclipse.js';
 import { LocalEclipsePage } from './pages/local-eclipse.js';
 import { EclipseOutlinePage } from './pages/eclipse-outline.js';
+import { t } from '../i18n/index.js';
 
+// 各分頁以 id + factory 定義；title 由 i18n 字典依當前語系即時提供。
 export const PAGES = [
-  { id: 'month-calendar',  title: '月曆',     create: () => new MonthCalendarPage() },
-  { id: 'year-calendar',   title: '年曆',     create: () => new YearCalendarPage() },
-  { id: 'solar-eclipse',   title: '日月食',   create: () => new SolarEclipsePage() },
-  { id: 'local-eclipse',   title: '地方食',   create: () => new LocalEclipsePage() },
-  { id: 'ephemeris',       title: '星曆',     create: () => new EphemerisPage() },
-  { id: 'celestial',       title: '天象',     create: () => new CelestialPage() },
-  { id: 'stars',           title: '恆星',     create: () => new StarsPage() },
-  { id: 'shuoqi',          title: '氣朔',     create: () => new ShuoQiPage() },
-  { id: 'rise-set',        title: '升降',     create: () => new RiseSetPage() },
-  { id: 'eclipse-outline', title: '日食概略', create: () => new EclipseOutlinePage() },
-  { id: 'bazi',            title: '八字',     create: () => new BaziPage() },
-  { id: 'tools',           title: '工具',     create: () => new ToolsPage() },
-  { id: 'constants',       title: '常數',     create: () => new ConstantsPage() },
-];
+  { id: 'month-calendar',  create: () => new MonthCalendarPage() },
+  { id: 'year-calendar',   create: () => new YearCalendarPage() },
+  { id: 'solar-eclipse',   create: () => new SolarEclipsePage() },
+  { id: 'local-eclipse',   create: () => new LocalEclipsePage() },
+  { id: 'ephemeris',       create: () => new EphemerisPage() },
+  { id: 'celestial',       create: () => new CelestialPage() },
+  { id: 'stars',           create: () => new StarsPage() },
+  { id: 'shuoqi',          create: () => new ShuoQiPage() },
+  { id: 'rise-set',        create: () => new RiseSetPage() },
+  { id: 'eclipse-outline', create: () => new EclipseOutlinePage() },
+  { id: 'bazi',            create: () => new BaziPage() },
+  { id: 'tools',           create: () => new ToolsPage() },
+  { id: 'constants',       create: () => new ConstantsPage() },
+].map((def) => Object.defineProperty(def, 'title', {
+  enumerable: true,
+  get() { return t(`ui.pages.${this.id}`); },
+}));
 
 export function findPage(id) {
   return PAGES.find((p) => p.id === id) || PAGES[0];

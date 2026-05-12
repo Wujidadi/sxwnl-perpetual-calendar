@@ -11,7 +11,9 @@ export const SPEED_OF_LIGHT_KM_S = 299792.458;
 export const LIGHT_TIME_PER_AU_JCY = AU_KM / SPEED_OF_LIGHT_KM_S / 86400 / 36525;
 
 export const SYNODIC_PERIODS = [116, 584, 780, 399, 378, 370, 367, 367];
-export const PLANET_NAMES = ['地球', '水星', '金星', '火星', '木星', '土星', '天王星', '海王星', '冥王星'];
+
+// 行星名透過 i18n 字典提供（i18n/locales/*/astro.planets）。
+// 引入端：import { t } from '../i18n/index.js'; t('astro.planets')
 
 export const RAD_TO_ARCSEC = 180 * 3600 / Math.PI;
 export const RAD_TO_DEG = 180 / Math.PI;

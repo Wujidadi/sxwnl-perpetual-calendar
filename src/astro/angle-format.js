@@ -1,14 +1,16 @@
 // 弧度⇄字串：度分秒（°′″）與時分秒（h m s）。
-// 字串內 °、′、″、h、m、s、分、秒 屬 i18n 字典範疇，待後續翻譯抽出。
+// 單位字符以 i18n 字典提供（astro.angle.*）。
 
 import { RAD_TO_ARCSEC } from './constants.js';
+import { t } from '../i18n/index.js';
 
 // 弧度→字串，可指定小數位 ext。tim=1 採時分秒，否則度分秒。
 export function formatRadianFull(d, tim, ext) {
+  const u = t('astro.angle');
   let s = ' ';
-  let w1 = '°', w2 = "'", w3 = '"';
+  let w1 = u.deg, w2 = u.arcmin, w3 = u.arcsec;
   if (d < 0) { d = -d; s = '-'; }
-  if (tim) { d *= 12 / Math.PI; w1 = 'h '; w2 = 'm'; w3 = 's'; }
+  if (tim) { d *= 12 / Math.PI; w1 = u.hour; w2 = u.min; w3 = u.sec; }
   else d *= 180 / Math.PI;
   let a = Math.floor(d); d = (d - a) * 60;
   let b = Math.floor(d); d = (d - b) * 60;
@@ -32,8 +34,9 @@ export function formatRadian(d, tim) {
 
 // 弧度→字串，精確到分。
 export function formatRadianToMinute(d) {
+  const u = t('astro.angle');
   let s = '+';
-  const w1 = '°', w2 = "'";
+  const w1 = u.deg, w2 = u.arcmin;
   if (d < 0) { d = -d; s = '-'; }
   d *= 180 / Math.PI;
   let a = Math.floor(d);
@@ -47,13 +50,14 @@ export function formatRadianToMinute(d) {
 
 // 角秒→分秒。style=0 角度分秒、1 中文分秒、2 英文 m/s。
 export function formatArcSeconds(v, fx, fs) {
+  const u = t('astro.angle');
   let gn = '';
   if (v < 0) { v = -v; gn = '-'; }
   const f = Math.floor(v / 60);
   const m = v - f * 60;
-  if (!fs) return gn + f + "'" + m.toFixed(fx) + '"';
-  if (fs === 1) return gn + f + '分' + m.toFixed(fx) + '秒';
-  if (fs === 2) return gn + f + 'm' + m.toFixed(fx) + 's';
+  if (!fs)      return gn + f + u.arcmin + m.toFixed(fx) + u.arcsec;
+  if (fs === 1) return gn + f + u.cnMin  + m.toFixed(fx) + u.cnSec;
+  if (fs === 2) return gn + f + 'm'      + m.toFixed(fx) + 's';
 }
 
 // 字串→弧度。f=1 表示輸入是時分秒（會乘 15 轉換為度）。
