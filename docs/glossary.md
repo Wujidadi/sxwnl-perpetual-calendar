@@ -2,7 +2,7 @@
 
 ## 用途
 
-改寫期間統一使用此表決定新版的識別字。每批由使用者審核凍結後填入。Phase 1 起的所有新版模組必須遵循此表。
+改寫期間統一使用此表決定新版的識別字。本表為所有新版模組命名依據；每批由使用者審核凍結後填入。
 
 ## 命名原則
 
@@ -31,7 +31,7 @@
 
 ## B1：`tools.js`
 
-> 狀態：✅ 已定稿（Phase 0 結束時凍結）
+> 狀態：✅ 已定稿
 
 ### 檔案拆分
 
@@ -87,30 +87,30 @@
 
 ### `constants.js`
 
-| 原名        | 含義／值                         | 新名                                      |
-| ----------- | -------------------------------- | ----------------------------------------- |
-| `cs_rEar`   | 地球赤道半徑 6378.1366 km        | `EARTH_EQUATORIAL_RADIUS_KM`              |
-| `cs_rEarA`  | 地球平均半徑 = 0.99834 × cs_rEar | `EARTH_MEAN_RADIUS_KM`                    |
-| `cs_ba`     | 極／赤半徑比 0.99664719          | `EARTH_POLAR_EQ_RATIO`                    |
-| `cs_ba2`    | `cs_ba²`                         | `EARTH_POLAR_EQ_RATIO_SQ`                 |
-| `cs_AU`     | 1 AU = 1.49597870691e8 km        | `AU_KM`                                   |
-| `cs_sinP`   | sin(太陽視差) = R⊕/AU            | `SIN_SOLAR_PARALLAX`                      |
-| `cs_PI`     | 太陽視差角（asin(cs_sinP)）      | `SOLAR_PARALLAX`                          |
-| `cs_GS`     | 光速 299792.458 km/s             | `SPEED_OF_LIGHT_KM_S`                     |
-| `cs_Agx`    | 每 AU 光行時間（儒略世紀）       | `LIGHT_TIME_PER_AU_JCY`                   |
-| `cs_xxHH`   | 行星會合週期陣列                 | `SYNODIC_PERIODS`                         |
-| `xxName`    | 行星名陣列（含冥王星，9 項）     | `PLANET_NAMES`（內容字串於 Phase 4 i18n） |
-| `rad`       | 180×3600/π（每弧度的角秒數）     | `RAD_TO_ARCSEC`                           |
-| `radd`      | 180/π（每弧度的度數）            | `RAD_TO_DEG`                              |
-| `pi2`       | 2π                               | `TWO_PI`                                  |
-| `pi_2`      | π/2                              | `HALF_PI`                                 |
-| `J2000`     | 儒略日 2451545（標準曆元）       | `J2000`（沿用，學界標準）                 |
-| `cs_k`      | 月／地半徑比（半影）0.2725076    | `MOON_EARTH_RATIO_PENUMBRA`               |
-| `cs_k2`     | 月／地半徑比（本影）0.2722810    | `MOON_EARTH_RATIO_UMBRA`                  |
-| `cs_k0`     | 日／地半徑比 109.1222            | `SUN_EARTH_RATIO`                         |
-| `cs_sMoon`  | 月亮視半徑常數（半影）           | `MOON_RADIUS_FACTOR_PENUMBRA`             |
-| `cs_sMoon2` | 月亮視半徑常數（本影）           | `MOON_RADIUS_FACTOR_UMBRA`                |
-| `cs_sSun`   | 太陽視半徑常數 959.64″           | `SUN_RADIUS_ARCSEC`                       |
+| 原名        | 含義／值                         | 新名                                                    |
+| ----------- | -------------------------------- | ------------------------------------------------------- |
+| `cs_rEar`   | 地球赤道半徑 6378.1366 km        | `EARTH_EQUATORIAL_RADIUS_KM`                            |
+| `cs_rEarA`  | 地球平均半徑 = 0.99834 × cs_rEar | `EARTH_MEAN_RADIUS_KM`                                  |
+| `cs_ba`     | 極／赤半徑比 0.99664719          | `EARTH_POLAR_EQ_RATIO`                                  |
+| `cs_ba2`    | `cs_ba²`                         | `EARTH_POLAR_EQ_RATIO_SQ`                               |
+| `cs_AU`     | 1 AU = 1.49597870691e8 km        | `AU_KM`                                                 |
+| `cs_sinP`   | sin(太陽視差) = R⊕/AU            | `SIN_SOLAR_PARALLAX`                                    |
+| `cs_PI`     | 太陽視差角（asin(cs_sinP)）      | `SOLAR_PARALLAX`                                        |
+| `cs_GS`     | 光速 299792.458 km/s             | `SPEED_OF_LIGHT_KM_S`                                   |
+| `cs_Agx`    | 每 AU 光行時間（儒略世紀）       | `LIGHT_TIME_PER_AU_JCY`                                 |
+| `cs_xxHH`   | 行星會合週期陣列                 | `SYNODIC_PERIODS`                                       |
+| `xxName`    | 行星名陣列（含冥王星，9 項）     | （已移除常數；行星名由 i18n 字典 `astro.planets` 提供） |
+| `rad`       | 180×3600/π（每弧度的角秒數）     | `RAD_TO_ARCSEC`                                         |
+| `radd`      | 180/π（每弧度的度數）            | `RAD_TO_DEG`                                            |
+| `pi2`       | 2π                               | `TWO_PI`                                                |
+| `pi_2`      | π/2                              | `HALF_PI`                                               |
+| `J2000`     | 儒略日 2451545（標準曆元）       | `J2000`（沿用，學界標準）                               |
+| `cs_k`      | 月／地半徑比（半影）0.2725076    | `MOON_EARTH_RATIO_PENUMBRA`                             |
+| `cs_k2`     | 月／地半徑比（本影）0.2722810    | `MOON_EARTH_RATIO_UMBRA`                                |
+| `cs_k0`     | 日／地半徑比 109.1222            | `SUN_EARTH_RATIO`                                       |
+| `cs_sMoon`  | 月亮視半徑常數（半影）           | `MOON_RADIUS_FACTOR_PENUMBRA`                           |
+| `cs_sMoon2` | 月亮視半徑常數（本影）           | `MOON_RADIUS_FACTOR_UMBRA`                              |
+| `cs_sSun`   | 太陽視半徑常數 959.64″           | `SUN_RADIUS_ARCSEC`                                     |
 
 ### `math-utils.js`
 
@@ -140,7 +140,7 @@
 | `m2fm(v, fx, fs)`       | 角秒→分秒（三種格式）     | `formatArcSeconds`     |
 | `str2rad(s, f)`         | 字串→弧度                 | `parseAngleToRadian`   |
 
-> 字串內含「°」「′」「″」「h」「m」「s」「分」「秒」，屬 i18n 範圍，Phase 4 抽出。
+> 字串內含「°」「′」「″」「h」「m」「s」「分」「秒」，已透過 i18n 字典 `astro.angle` 提供。
 
 ### 其他
 
@@ -190,20 +190,20 @@
 
 ### `julian-day.js`
 
-| 原名                            | 含義                            | 新名                                       |
-| ------------------------------- | ------------------------------- | ------------------------------------------ |
-| `JD.JD(y, m, d)`                | 公曆→儒略日；`d` 可含小數天     | `gregorianToJD(year, month, day)`          |
-| `JD.DD(jd)`                     | 儒略日→公曆物件                 | `jdToGregorian(jd)`                        |
-| `JD.DD2str(r)`                  | 公曆物件→字串（到秒）           | `formatGregorian(g)`                       |
-| `JD.DD2strPrecise(r)`           | 公曆物件→字串（到毫秒）         | `formatGregorianPrecise(g)`                |
-| `JD.JD2str(jd)`                 | 儒略日→字串                     | `formatJD(jd)`                             |
-| `JD.timeStr(jd)`                | 取 JD 的時間部分字串            | `formatTimeOfDay(jd)`                      |
-| `JD.getWeek(jd)`                | 計算星期（0=日…6=六）           | `getWeekday(jd)`                           |
-| `JD.nnweek(y, m, n, w)`         | 求 y 年 m 月第 n 個星期 w 的 JD | `jdOfNthWeekday(year, month, n, weekday)`  |
-| `JD.Weeks`                      | 星期名陣列                      | `WEEKDAY_NAMES`（內容字串於 Phase 4 i18n） |
-| `JD.Y / .M / .D / .h / .m / .s` | 共享狀態                        | **刪除**（去狀態化）                       |
-| `JD.toJD()`                     | 自身狀態→JD                     | **刪除**（並入 `gregorianToJD`）           |
-| `JD.setFromJD(jd)`              | JD→自身狀態                     | **刪除**（並入 `jdToGregorian`）           |
+| 原名                            | 含義                            | 新名                                                                    |
+| ------------------------------- | ------------------------------- | ----------------------------------------------------------------------- |
+| `JD.JD(y, m, d)`                | 公曆→儒略日；`d` 可含小數天     | `gregorianToJD(year, month, day)`                                       |
+| `JD.DD(jd)`                     | 儒略日→公曆物件                 | `jdToGregorian(jd)`                                                     |
+| `JD.DD2str(r)`                  | 公曆物件→字串（到秒）           | `formatGregorian(g)`                                                    |
+| `JD.DD2strPrecise(r)`           | 公曆物件→字串（到毫秒）         | `formatGregorianPrecise(g)`                                             |
+| `JD.JD2str(jd)`                 | 儒略日→字串                     | `formatJD(jd)`                                                          |
+| `JD.timeStr(jd)`                | 取 JD 的時間部分字串            | `formatTimeOfDay(jd)`                                                   |
+| `JD.getWeek(jd)`                | 計算星期（0=日…6=六）           | `getWeekday(jd)`                                                        |
+| `JD.nnweek(y, m, n, w)`         | 求 y 年 m 月第 n 個星期 w 的 JD | `jdOfNthWeekday(year, month, n, weekday)`                               |
+| `JD.Weeks`                      | 星期名陣列                      | （已移除常數；星期名由 i18n 字典 `weekday.short`／`weekday.full` 提供） |
+| `JD.Y / .M / .D / .h / .m / .s` | 共享狀態                        | **刪除**（去狀態化）                                                    |
+| `JD.toJD()`                     | 自身狀態→JD                     | **刪除**（並入 `gregorianToJD`）                                        |
+| `JD.setFromJD(jd)`              | JD→自身狀態                     | **刪除**（並入 `jdToGregorian`）                                        |
 
 > **API 變化**：`jdToGregorian` 回傳鍵名由 `Y/M/D/h/m/s` 改為 `year/month/day/hour/minute/second`，下游讀取點於 B6／B8 一併調整。輸出值 bit-exact 不變。
 
@@ -365,11 +365,11 @@
 | `schHXK(key)`    | 星庫檢索                                  | `searchStarCatalog` |
 | `getHXK(s, all)` | 提取並格式化恆星庫（度分秒／角分秒→弧度） | `parseStarCatalog`  |
 
-> `CONSTELLATIONS_88` 與 `STAR_CATALOG` 內含中英混雜字串。Phase 4 i18n 時將拆分為中文名／英文名兩組欄位；本批僅改外層識別字。
+> `CONSTELLATIONS_88` 與 `STAR_CATALOG` 內含中英混雜字串；88 星座的中文名與族名透過 i18n 字典 `stars.*` 在 UI 顯示時替換。後續若需可將原資料拆分為中文名／英文名兩組欄位。
 
 ## B6：`eph.js`
 
-> 狀態：✅ 已定稿（頂層識別字與物件名）。物件內部公開方法數量多，於 Phase 1 實作時就近審；以 camelCase 原則改名。
+> 狀態：✅ 已定稿（頂層識別字與物件名）。物件內部公開方法數量多，於實作時就近審；以 camelCase 原則改名。
 
 ### 檔案拆分
 
@@ -476,7 +476,7 @@
 | ------------ | -------------------------- | ------------------ |
 | `SQv` (陣列) | 各大洲的國家／地區時區清單 | `TIMEZONE_REGIONS` |
 
-> `SQv` 字串內以 `#`／`##` 分隔欄位（時差、夏令時規則、代表城市）；本批僅敲定外層名稱，欄位細部解析延後到 Phase 3 UI 重構時補上。
+> `SQv` 字串內以 `#`／`##` 分隔欄位（時差、夏令時規則、代表城市）；本表僅敲定外層名稱，欄位細部解析於 UI 實作時補上。
 
 ### 模組載入修補
 
@@ -484,11 +484,11 @@
 
 ### i18n 註記
 
-`CITY_REGIONS`、`TIMEZONE_REGIONS` 內所有省名、城市名、國家名為簡體中文。Phase 4 建立簡↔繁對照表（多數可機械轉換，少數需人工確認，如「台北／臺北」「韓國／南韓」等臺灣慣用詞）。
+`CITY_REGIONS`、`TIMEZONE_REGIONS` 內所有省名、城市名、國家名為簡體中文；簡↔繁對照表已建立於 i18n 字典（`cities`／`timezones`），含臺灣慣用詞（如「悉尼／雪梨」「韓國」「烏茲別克」等）。
 
 ## B8：`lunar.js`
 
-> 狀態：✅ 已定稿（頂層識別字與物件公開介面）。日／月物件細部欄位（`Lyear`／`Lmc`／`Ldi`／`Hyear`／`jqmc` 等約 50 個）於 Phase 1 實作 `LunarMonth` 時就近審。
+> 狀態：✅ 已定稿（頂層識別字與物件公開介面）。日／月物件細部欄位（`Lyear`／`Lmc`／`Ldi`／`Hyear`／`jqmc` 等約 50 個）於 `LunarMonth` 實作時就近審。
 
 ### 檔案拆分
 
@@ -523,7 +523,7 @@
 
 ### `chinese-base.js` (`obb`)
 
-#### 資料表（內容字串於 Phase 4 i18n）
+#### 資料表（內容字串透過 i18n 字典 `lunar.*` 提供）
 
 | 原名    | 含義                 | 新名                   |
 | ------- | -------------------- | ---------------------- |
@@ -592,7 +592,7 @@
 | `Lunar()`                 | 月物件建構式         | `LunarMonth` (class)                |
 | `Lunar.yueLiCalc(By, Bm)` | 計算公曆某月的三合曆 | `LunarMonth.calcMonth(year, month)` |
 
-> `LunarMonth` 實例欄位（`lun.y/Ly/ShX/nianhao/lun[i].*` 等約 50 個）於 Phase 1 實作時就近審。
+> `LunarMonth` 實例欄位（`lun.y/Ly/ShX/nianhao/lun[i].*` 等約 50 個）於實作時就近審。
 
 ## B9：`vml.js` + `eph0.js` 地圖投影段
 
@@ -682,7 +682,7 @@
 
 ### i18n 註記
 
-`drawAxisLines` 內含中文字串「貝黃交線」「貝赤交線」「影軸-貝塞爾交線」等繪文本內容；Phase 4 i18n 抽出。
+`drawAxisLines` 內含中文字串「貝黃交線」「貝赤交線」「影軸-貝塞爾交線」等繪文本內容；後續若需可抽入 i18n 字典。
 
 ## B10：`help.js` + `page_gj.js`
 
@@ -690,11 +690,11 @@
 
 ### 檔案拆分
 
-| 新檔                              | 內容                                   |
-| --------------------------------- | -------------------------------------- |
-| `src/ui/help.js`                  | `showHelp` 函式（內容於 Phase 4 i18n） |
-| `src/ui/pages/tools/date-calc.js` | 工具 1：JD／日期轉換                   |
-| `src/ui/pages/tools/pi-calc.js`   | 工具 2：圓周率計算                     |
+| 新檔                              | 內容                                       |
+| --------------------------------- | ------------------------------------------ |
+| `src/ui/help.js`                  | `showHelp` 函式（內容後續若需可抽入 i18n） |
+| `src/ui/pages/tools/date-calc.js` | 工具 1：JD／日期轉換                       |
+| `src/ui/pages/tools/pi-calc.js`   | 工具 2：圓周率計算                         |
 
 ### `help.js`
 
@@ -702,7 +702,7 @@
 | ------------- | ---------------------- | ------------------- |
 | `showHelp(f)` | 顯示／隱藏浮動說明面板 | `showHelp(panelId)` |
 
-> 函式名已英文，沿用；參數 `f` → `panelId`。內容字串於 Phase 4 i18n 抽出。
+> 函式名已英文，沿用；參數 `f` → `panelId`。內容字串後續若需可抽入 i18n 字典。
 
 ### `pages/tools/date-calc.js`
 
@@ -741,7 +741,7 @@
 
 ## B11：HTML input IDs
 
-> 狀態：✅ 已定稿。範圍：全部 `.htm` 入口頁的 `id` 屬性，~136 個。本批敲定**命名規則與 prefix／suffix 對映**；個別 ID 重命名延後至 Phase 3 各分頁元件實作時。
+> 狀態：✅ 已定稿。範圍：全部 `.htm` 入口頁的 `id` 屬性，~136 個。本表敲定**命名規則與 prefix／suffix 對映**；個別 ID 重命名於各分頁元件實作時就近處理。
 
 ### 命名規則
 
@@ -838,9 +838,9 @@
 | `Cn`                | 用途不明     | 暫 `unknown-cn`，加 TODO                 |
 | `pan_1`             | 面板         | `panel-1`                                |
 
-### Phase 3 處理計畫
+### 後續處理慣例
 
 1. 新 RWD 單頁不再有 13 個獨立 panel `<div>`；改為分頁元件（route 或 tab）。
 2. 每個分頁元件（如 `src/ui/pages/eclipse.js`）自管 DOM；輸入 ID 在元件內部命名，模組外不可見。
 3. 跨元件共用的全域 ID（如 `help-panel`、`output`、`clock-1/2`）保留於 `index.html`。
-4. 本批 prefix／suffix 作為慣例，Phase 3 各分頁元件遵循。
+4. 本批 prefix／suffix 為各分頁元件實作時的命名慣例。

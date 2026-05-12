@@ -45,13 +45,13 @@ zh-TW-cities chunk 僅在使用者切換為繁體中文時透過 dynamic import 
 
 ### 主 bundle 較大的輸入（`npm run build:meta` 可見）
 
-| 模組 | 約略大小 |
-| ---- | -------- |
-| `src/astro/vsop87.js`           | 143 KB |
-| `src/data/cities.js`            | 79 KB  |
-| `src/i18n/locales/zh-TW.js`     | 53 KB  |
-| `src/lunar/chinese-base.js`     | 40 KB  |
-| `src/astro/elp-moon.js`         | 36 KB  |
+| 模組                        | 約略大小 |
+| --------------------------- | -------- |
+| `src/astro/vsop87.js`       | 143 KB   |
+| `src/data/cities.js`        | 79 KB    |
+| `src/i18n/locales/zh-TW.js` | 53 KB    |
+| `src/lunar/chinese-base.js` | 40 KB    |
+| `src/astro/elp-moon.js`     | 36 KB    |
 
 `vsop87`／`elp-moon` 是行星與月球週期項係數，無法精簡；`cities.js` 為原始壓縮編碼，後續若需可考慮再拆 chunk。
 

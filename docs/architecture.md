@@ -7,7 +7,7 @@
 - **零執行期依賴**：應用程式不引入任何 runtime 套件。`esbuild` 僅做生產打包。
 - **單入口 RWD**：取代原 `index.htm`／`indexmp.htm` 雙頁，以 CSS 媒體查詢處理 PC／行動裝置。
 
-## 目錄草案（將於 Phase 1 起逐步建立）
+## 目錄結構
 
 ```
 src/

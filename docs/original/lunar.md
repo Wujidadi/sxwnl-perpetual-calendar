@@ -915,13 +915,13 @@ function Lunar(){
 
   //月历处理
   ta0+='<tr>'
-	+'<td'+sty_head+'width="%14">日</td>'
-	+'<td'+sty_head+'width="%14">一</td>'
-	+'<td'+sty_head+'width="%14">二</td>'
-	+'<td'+sty_head+'width="%14">三</td>'
-	+'<td'+sty_head+'width="%14">四</td>'
-	+'<td'+sty_head+'width="%14">五</td>'
-	+'<td'+sty_head+'width="%14">六</td></tr>';
+  +'<td'+sty_head+'width="%14">日</td>'
+  +'<td'+sty_head+'width="%14">一</td>'
+  +'<td'+sty_head+'width="%14">二</td>'
+  +'<td'+sty_head+'width="%14">三</td>'
+  +'<td'+sty_head+'width="%14">四</td>'
+  +'<td'+sty_head+'width="%14">五</td>'
+  +'<td'+sty_head+'width="%14">六</td></tr>';
   for(i=0;i<this.dn;i++){ //遍历本月各日(公历)
     //生成i日的日历页面
     ob = this.lun[i];

@@ -17,7 +17,7 @@ generated_by: scripts/docify-legacy.mjs
 function trim(s){ return s.replace(/(^\s*)|(\s*$)/g, "");  }
 Date.prototype.toLocaleString2 = function() { 
   return this.getFullYear() + "-" + (this.getMonth() + 1) + "-" + this.getDate() + " " + this.getHours() + ":" + this.getMinutes() + ":" + this.getSeconds();
-}; 
+};
 /****************
 天文纪年与普通纪年的转换
 ****************/
