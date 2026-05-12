@@ -9,8 +9,16 @@ import { lunarEclipse } from '../../astro/lunar-eclipse.js';
 import { createEclipseLocalView } from '../canvas/eclipse-local-view.js';
 import { drawEclipseTimeline } from '../canvas/eclipse-timeline.js';
 import { createCityPicker } from '../components/city-picker.js';
+import { t } from '../../i18n/index.js';
 
 function pad2(n) { return (n < 10 ? '0' : '') + Math.floor(n); }
+
+// 引擎內部 LX 字符（zh-CN）對應到日食類型碼，用以取當前語系的完整標籤。
+const LX_TO_CODE = { '偏':'P', '全':'T', '环':'A', '環':'A', '混合':'H', '全全環':'H2', '環全全':'H3' };
+function localizedSolarLabel(lx) {
+  const code = LX_TO_CODE[lx] || 'P';
+  return t('eclipse.solar.' + code);
+}
 
 // 力學時 JD（J2000 起算）→ 北京時字串
 function formatBJ(jdTD) {
@@ -30,27 +38,26 @@ export class LocalEclipsePage {
     const root = document.createElement('section');
     root.className = 'page-local-eclipse';
     root.innerHTML = `
-      <h2 style="margin-top:0">地方食</h2>
+      <h2 style="margin-top:0">${t('ui.localEclipsePage.title')}</h2>
       <p style="color:var(--color-text-soft);font-size:13px;margin-top:0">
-        指定日期附近的合朔與地理位置，計算站心觀測的日食情況。
-        點擊「自動找近期日食」會在輸入日期前後的合朔中尋找最近的一次日食。
+        ${t('ui.localEclipsePage.hint')}
       </p>
       <form class="page-card" id="le-form">
         <div class="form-row">
-          <label>年 <input type="number" id="le-y" value="${y}" min="-4712" max="9999" /></label>
-          <label>月 <input type="number" id="le-m" value="${m}" min="1" max="12" /></label>
-          <label>日 <input type="number" id="le-d" value="${d}" min="1" max="31" /></label>
-          <label>時間（北京時）<input type="text" id="le-t" value="12:00:00" size="10" /></label>
+          <label>${t('ui.labels.year')} <input type="number" id="le-y" value="${y}" min="-4712" max="9999" /></label>
+          <label>${t('ui.labels.month')} <input type="number" id="le-m" value="${m}" min="1" max="12" /></label>
+          <label>${t('ui.labels.day')} <input type="number" id="le-d" value="${d}" min="1" max="31" /></label>
+          <label>${t('ui.labels.time')}<input type="text" id="le-t" value="12:00:00" size="10" /></label>
         </div>
         <div class="form-row">
-          <label>經度 <input type="number" id="le-lon" value="121.5" step="0.001" /> °</label>
-          <label>緯度 <input type="number" id="le-lat" value="25.0"  step="0.001" /> °</label>
-          <label>海拔 <input type="number" id="le-high" value="0" step="0.01" /> km</label>
+          <label>${t('ui.labels.longitude')} <input type="number" id="le-lon" value="121.5" step="0.001" /> °</label>
+          <label>${t('ui.labels.latitude')} <input type="number" id="le-lat" value="25.0"  step="0.001" /> °</label>
+          <label>${t('ui.labels.altitude')} <input type="number" id="le-high" value="0" step="0.01" /> km</label>
         </div>
         <div class="form-row" id="le-city-row">
           <span id="le-city-host"></span>
-          <button class="btn btn-primary" type="submit">計算</button>
-          <button class="btn" type="button" id="le-find">自動找近期日食</button>
+          <button class="btn btn-primary" type="submit">${t('ui.buttons.compute')}</button>
+          <button class="btn" type="button" id="le-find">${t('ui.buttons.findEclipse')}</button>
         </div>
       </form>
       <div id="le-output"></div>
@@ -123,7 +130,7 @@ export class LocalEclipsePage {
       }
     }
     this.el.querySelector('#le-output').innerHTML = `
-      <div class="page-card"><p>從輸入日期向後 14 個合朔內未找到日食事件。</p></div>
+      <div class="page-card"><p>${t('ui.localEclipsePage.notFoundIn14')}</p></div>
     `;
   }
 
@@ -138,10 +145,10 @@ export class LocalEclipsePage {
     if (fast.lx === 'N') {
       this.el.querySelector('#le-output').innerHTML = `
         <div class="page-card">
-          <h3>結果</h3>
-          <p>該合朔週期（${formatBJ(fast.jd)}）未發生日食。</p>
+          <h3>${t('ui.labels.result')}</h3>
+          <p>${t('ui.localEclipsePage.noEclipseAt').replace('{t}', formatBJ(fast.jd))}</p>
           <p style="color:var(--color-text-soft);font-size:13px">
-            可按「自動找近期日食」由此日期向後搜尋下一次日食。
+            ${t('ui.localEclipsePage.tipFindEclipse')}
           </p>
         </div>
       `;
@@ -156,12 +163,13 @@ export class LocalEclipsePage {
     const dur = solarEclipseLocal.dur;
 
     if (sf <= 0) {
+      const lbl = t('eclipse.solar.' + fast.lx) || fast.lx;
       this.el.querySelector('#le-output').innerHTML = `
         <div class="page-card">
-          <h3>結果</h3>
-          <p>該日（${formatBJ(fast.jd)}）日食在指定地點不可見（食分為 0）。</p>
+          <h3>${t('ui.labels.result')}</h3>
+          <p>${t('ui.localEclipsePage.invisibleAt').replace('{t}', formatBJ(fast.jd))}</p>
           <p style="color:var(--color-text-soft);font-size:13px">
-            該日食類型：${SOLAR_TYPE_LABEL[fast.lx] || fast.lx}；可嘗試其他經緯度。
+            ${t('ui.localEclipsePage.tipTryOther').replace('{label}', lbl)}
           </p>
         </div>
       `;
@@ -180,36 +188,39 @@ export class LocalEclipsePage {
         lunarEclipse.sCJ2, lunarEclipse.sCW2,
         lunarEclipse.mRad, lunarEclipse.sRad,
       );
-      view.annotate(`${LX}食 食分 ${sf.toFixed(3)}`);
+      view.annotate(`${localizedSolarLabel(LX)} ${t('eclipse.metrics.magnitude')} ${sf.toFixed(3)}`);
     };
 
+    const m = t('eclipse.metrics');
+    const p = t('eclipse.phases');
+    const fullLabel = localizedSolarLabel(LX);
     this.el.querySelector('#le-output').innerHTML = `
       <div class="page-card">
-        <h3>站心觀測結果（${LX}食）</h3>
+        <h3>${t('ui.localEclipsePage.resultTitle').replace('{label}', fullLabel)}</h3>
         <table class="data-table">
           <tbody>
-            <tr><td>食分</td><td class="mono">${sf.toFixed(4)}</td></tr>
-            <tr><td>初虧</td><td class="mono">${formatBJ(sT[0])}</td></tr>
-            <tr><td>食甚</td><td class="mono">${formatBJ(sT[1])}</td></tr>
-            <tr><td>復圓</td><td class="mono">${formatBJ(sT[2])}</td></tr>
-            ${sT[3] ? `<tr><td>食既</td><td class="mono">${formatBJ(sT[3])}</td></tr>` : ''}
-            ${sT[4] ? `<tr><td>生光</td><td class="mono">${formatBJ(sT[4])}</td></tr>` : ''}
-            ${dur ? `<tr><td>持續時間</td><td class="mono">${(dur * 86400).toFixed(0)} 秒</td></tr>` : ''}
+            <tr><td>${m.magnitude}</td><td class="mono">${sf.toFixed(4)}</td></tr>
+            <tr><td>${p.P1}</td><td class="mono">${formatBJ(sT[0])}</td></tr>
+            <tr><td>${p.Max}</td><td class="mono">${formatBJ(sT[1])}</td></tr>
+            <tr><td>${p.P4}</td><td class="mono">${formatBJ(sT[2])}</td></tr>
+            ${sT[3] ? `<tr><td>${p.U1}</td><td class="mono">${formatBJ(sT[3])}</td></tr>` : ''}
+            ${sT[4] ? `<tr><td>${p.U4}</td><td class="mono">${formatBJ(sT[4])}</td></tr>` : ''}
+            ${dur ? `<tr><td>${m.duration}</td><td class="mono">${t('ui.localEclipsePage.durationSec').replace('{n}', (dur * 86400).toFixed(0))}</td></tr>` : ''}
           </tbody>
         </table>
       </div>
       <div class="page-card">
-        <h3>食程時間軸</h3>
+        <h3>${t('ui.localEclipsePage.timelineTitle')}</h3>
         <canvas id="le-timeline" width="720" height="160" style="background:#0d1116;border-radius:8px;display:block;width:100%;max-width:720px;margin:0 auto"></canvas>
         <p style="color:var(--color-text-soft);font-size:12px;margin-top:8px;text-align:center">
-          藍：初虧／復圓；橙：食既／生光（僅全食或環食有）；紅：食甚。
+          ${t('ui.localEclipsePage.timelineHint')}
         </p>
       </div>
       <div class="page-card">
-        <h3>放大圖（食甚時刻）</h3>
+        <h3>${t('ui.localEclipsePage.enlargedTitle')}</h3>
         <canvas id="le-canvas" width="480" height="320" style="background:#0d1116;border-radius:8px;display:block;margin:0 auto"></canvas>
         <p style="color:var(--color-text-soft);font-size:12px;margin-top:8px;text-align:center">
-          紅色：太陽；黃色：月亮；以食甚時刻日月相對位置呈現。
+          ${t('ui.localEclipsePage.enlargedHint')}
         </p>
       </div>
     `;
@@ -217,17 +228,13 @@ export class LocalEclipsePage {
     const timelineCanvas = this.el.querySelector('#le-timeline');
     if (timelineCanvas) {
       const events = [
-        { jd: sT[0], key: 'P1',  label: '初虧' },
-        ...(sT[3] ? [{ jd: sT[3], key: 'U1', label: '食既' }] : []),
-        { jd: sT[1], key: 'Max', label: '食甚' },
-        ...(sT[4] ? [{ jd: sT[4], key: 'U4', label: '生光' }] : []),
-        { jd: sT[2], key: 'P4',  label: '復圓' },
+        { jd: sT[0], key: 'P1',  label: p.P1 },
+        ...(sT[3] ? [{ jd: sT[3], key: 'U1', label: p.U1 }] : []),
+        { jd: sT[1], key: 'Max', label: p.Max },
+        ...(sT[4] ? [{ jd: sT[4], key: 'U4', label: p.U4 }] : []),
+        { jd: sT[2], key: 'P4',  label: p.P4 },
       ];
       drawEclipseTimeline(timelineCanvas, events);
     }
   }
 }
-
-const SOLAR_TYPE_LABEL = {
-  P: '偏', T: '全', A: '環', H: '混合', H2: '全全環', H3: '環全全',
-};

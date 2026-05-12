@@ -5,20 +5,25 @@ import { gregorianToJD } from '../../astro/julian-day.js';
 import { deltaT } from '../../astro/delta-t.js';
 import { parseTimeToHours } from '../../utils/time.js';
 import { planetEphemeris } from '../../astro/planet-events.js';
+import { t } from '../../i18n/index.js';
 
 // 可選天體：xt 編號對應 planetEphemeris 內部派發。
-const BODIES = [
-  { xt: 9,  name: '太陽' },
-  { xt: 10, name: '月亮' },
-  { xt: 1,  name: '水星' },
-  { xt: 2,  name: '金星' },
-  { xt: 3,  name: '火星' },
-  { xt: 4,  name: '木星' },
-  { xt: 5,  name: '土星' },
-  { xt: 6,  name: '天王星' },
-  { xt: 7,  name: '海王星' },
-  { xt: 8,  name: '冥王星' },
-];
+function buildBodies() {
+  const planets = t('astro.planets');
+  const eb = t('ui.ephemeris.bodies');
+  return [
+    { xt: 9,  name: eb.sun },
+    { xt: 10, name: eb.moon },
+    { xt: 1,  name: planets[1] },
+    { xt: 2,  name: planets[2] },
+    { xt: 3,  name: planets[3] },
+    { xt: 4,  name: planets[4] },
+    { xt: 5,  name: planets[5] },
+    { xt: 6,  name: planets[6] },
+    { xt: 7,  name: planets[7] },
+    { xt: 8,  name: planets[8] },
+  ];
+}
 
 export class EphemerisPage {
   mount(container) {
@@ -27,35 +32,37 @@ export class EphemerisPage {
     const m = today.getMonth() + 1;
     const d = today.getDate();
 
-    const bodyOptions = BODIES.map((b) => `<option value="${b.xt}">${b.name}</option>`).join('');
+    const bodies = buildBodies();
+    const bodyOptions = bodies.map((b) => `<option value="${b.xt}">${b.name}</option>`).join('');
+    const ep = t('ui.ephemeris');
 
     const root = document.createElement('section');
     root.className = 'page-ephemeris';
     root.innerHTML = `
-      <h2 style="margin-top:0">星曆</h2>
+      <h2 style="margin-top:0">${ep.title}</h2>
       <p style="color:var(--color-text-soft);font-size:13px;margin-top:0">
-        指定時刻（格林尼治）與地理位置，計算任一天體的視座標、距離與方位高度。
+        ${ep.hint}
       </p>
       <form class="page-card" id="ep-form">
         <div class="form-row">
-          <label>年 <input type="number" id="ep-y" value="${y}" min="-4712" max="9999" /></label>
-          <label>月 <input type="number" id="ep-m" value="${m}" min="1" max="12" /></label>
-          <label>日 <input type="number" id="ep-d" value="${d}" min="1" max="31" /></label>
-          <label>時間 <input type="text" id="ep-t" value="12:00:00" size="10" /></label>
+          <label>${t('ui.labels.year')} <input type="number" id="ep-y" value="${y}" min="-4712" max="9999" /></label>
+          <label>${t('ui.labels.month')} <input type="number" id="ep-m" value="${m}" min="1" max="12" /></label>
+          <label>${t('ui.labels.day')} <input type="number" id="ep-d" value="${d}" min="1" max="31" /></label>
+          <label>${t('ui.labels.time_')} <input type="text" id="ep-t" value="12:00:00" size="10" /></label>
         </div>
         <div class="form-row">
-          <label>時標
+          <label>${ep.timeScale}
             <select id="ep-scale">
-              <option value="UT">UTC</option>
-              <option value="TD" selected>TD（力學時）</option>
+              <option value="UT">${ep.timeScaleUT}</option>
+              <option value="TD" selected>${ep.timeScaleTD}</option>
             </select>
           </label>
-          <label>經度 <input type="number" id="ep-lon" value="121.5" step="0.001" /> °</label>
-          <label>緯度 <input type="number" id="ep-lat" value="25.0"  step="0.001" /> °</label>
-          <label>天體
+          <label>${t('ui.labels.longitude')} <input type="number" id="ep-lon" value="121.5" step="0.001" /> °</label>
+          <label>${t('ui.labels.latitude')} <input type="number" id="ep-lat" value="25.0"  step="0.001" /> °</label>
+          <label>${ep.bodySel}
             <select id="ep-xt">${bodyOptions}</select>
           </label>
-          <button class="btn btn-primary" type="submit">計算</button>
+          <button class="btn btn-primary" type="submit">${t('ui.buttons.compute')}</button>
         </div>
       </form>
       <div class="page-card" id="ep-output"></div>
@@ -93,9 +100,10 @@ export class EphemerisPage {
     const latRad = lat * Math.PI / 180;
     const text = planetEphemeris(xt, jdTD, lonRad, latRad);
 
-    const bodyName = BODIES.find((b) => b.xt === xt)?.name || '?';
+    const bodies = buildBodies();
+    const bodyName = bodies.find((b) => b.xt === xt)?.name || '?';
     q('ep-output').innerHTML = `
-      <h3>${bodyName}（力學時 JD ${jdTD.toFixed(6)}）</h3>
+      <h3>${bodyName}（${t('ui.ephemeris.tdJDHeader')} ${jdTD.toFixed(6)}）</h3>
       <pre class="text-output">${escapeHtml(text)}</pre>
     `;
   }

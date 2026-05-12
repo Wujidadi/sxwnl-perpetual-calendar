@@ -23,14 +23,14 @@ export class ShuoQiPage {
     const root = document.createElement('section');
     root.className = 'page-shuoqi';
     root.innerHTML = `
-      <h2 style="margin-top:0">節氣與合朔</h2>
+      <h2 style="margin-top:0">${t('ui.shuoqi.title')}</h2>
       <p style="color:var(--color-text-soft);font-size:13px;margin-top:0">
-        指定公曆年份，列出該年的 24 節氣與所有合朔（含閏月）精確時刻（北京時 UTC+8）。
+        ${t('ui.shuoqi.hint')}
       </p>
       <form class="page-card" id="sq-form">
         <div class="form-row">
-          <label>年份 <input type="number" id="sq-y" value="${y}" min="-4712" max="9999" step="1" /></label>
-          <button class="btn btn-primary" type="submit">查詢</button>
+          <label>${t('ui.labels.yearOnly')} <input type="number" id="sq-y" value="${y}" min="-4712" max="9999" step="1" /></label>
+          <button class="btn btn-primary" type="submit">${t('ui.buttons.query')}</button>
         </div>
       </form>
       <div id="sq-output"></div>
@@ -76,7 +76,7 @@ export class ShuoQiPage {
     const moonRows = [];
     for (let i = 0; i < 14; i++) {
       if (hs[i + 1] > qi[24]) break; // 已過跨年冬至
-      const monthLabel = (leap && i === leap ? t('lunar.leapPrefix') : '') + ym[i] + '月';
+      const monthLabel = (leap && i === leap ? t('lunar.leapPrefix') : '') + ym[i] + t('ui.labels.month');
       const big = dx[i] > 29 ? t('lunar.bigMonthSuffix') : t('lunar.smallMonthSuffix');
       const precise = preciseNewMoonFromJD(hs[i]);
       const time = formatBeijingTime(precise);
@@ -87,16 +87,16 @@ export class ShuoQiPage {
     out.innerHTML = `
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" class="sq-grid">
         <div class="page-card">
-          <h3>24 節氣（含跨年冬至）</h3>
+          <h3>${t('ui.shuoqi.sectionTerms')}</h3>
           <table class="data-table">
-            <thead><tr><th>節氣</th><th>時刻（北京時）</th></tr></thead>
+            <thead><tr><th>${t('ui.shuoqi.colTerm')}</th><th>${t('ui.shuoqi.colTime')}</th></tr></thead>
             <tbody>${qiRows.join('')}</tbody>
           </table>
         </div>
         <div class="page-card">
-          <h3>合朔（${moonRows.length} 個）</h3>
+          <h3>${t('ui.shuoqi.sectionShuo').replace('{n}', moonRows.length)}</h3>
           <table class="data-table">
-            <thead><tr><th>農曆月</th><th>合朔時刻（北京時）</th></tr></thead>
+            <thead><tr><th>${t('ui.shuoqi.colLunarMonth')}</th><th>${t('ui.shuoqi.colShuoTime')}</th></tr></thead>
             <tbody>${moonRows.join('')}</tbody>
           </table>
         </div>

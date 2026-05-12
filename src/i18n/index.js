@@ -54,6 +54,13 @@ export function t(key) {
   return v;
 }
 
+// 節日字串轉譯：以 zh-CN 原字串為 key 查當前語系版本，未命中回原字串。
+export function tFestival(s) {
+  if (!s) return s;
+  const dict = LOCALES[current] && LOCALES[current].festival;
+  return (dict && dict[s]) || s;
+}
+
 export function getLocale() {
   return current;
 }

@@ -12,11 +12,7 @@ import { lunarEclipse } from '../../astro/lunar-eclipse.js';
 import { shuoQiCalculator } from '../../lunar/ssq.js';
 import { moonSunDiffToTime } from '../../astro/ephemeris.js';
 import { drawEclipseTimeline } from '../canvas/eclipse-timeline.js';
-
-const SOLAR_TYPE_LABEL = {
-  P: '偏食', T: '全食', A: '環食',
-  H: '混合（環全環）', H2: '全全環', H3: '環全全',
-};
+import { t } from '../../i18n/index.js';
 
 function pad2(n) { return (n < 10 ? '0' : '') + Math.floor(n); }
 
@@ -52,8 +48,6 @@ function classifyLunarEclipse() {
   if (sepArcsec >= eUmbra - mr)    return { lx: 'partial',   sep: sepArcsec, ePenumbra, eUmbra, mr };
   return { lx: 'total', sep: sepArcsec, ePenumbra, eUmbra, mr };
 }
-
-const LUNAR_LABEL = { penumbral: '半影食', partial: '偏食', total: '全食' };
 
 function findYearEclipses(year) {
   const solar = [];
@@ -103,15 +97,14 @@ export class SolarEclipsePage {
     const root = document.createElement('section');
     root.className = 'page-solar-eclipse';
     root.innerHTML = `
-      <h2 style="margin-top:0">日月食</h2>
+      <h2 style="margin-top:0">${t('ui.solarEclipsePage.title')}</h2>
       <p style="color:var(--color-text-soft);font-size:13px;margin-top:0">
-        指定年份，列出該年所有日食與月食事件。時刻為北京時（UTC+8）。
-        若需「站心觀測視圖」與放大圖，請至「地方食」分頁。
+        ${t('ui.solarEclipsePage.hint')}
       </p>
       <form class="page-card" id="se-form">
         <div class="form-row">
-          <label>年份 <input type="number" id="se-y" value="${y}" min="-4712" max="9999" step="1" /></label>
-          <button class="btn btn-primary" type="submit">查詢</button>
+          <label>${t('ui.labels.yearOnly')} <input type="number" id="se-y" value="${y}" min="-4712" max="9999" step="1" /></label>
+          <button class="btn btn-primary" type="submit">${t('ui.buttons.query')}</button>
         </div>
       </form>
       <div id="se-output"></div>
@@ -134,47 +127,50 @@ export class SolarEclipsePage {
     const y = Number(this.el.querySelector('#se-y').value);
     const { solar, lunar } = findYearEclipses(y);
 
+    const sp = t('ui.solarEclipsePage');
+    const noneStr = t('ui.common.none');
+
     const solarRows = solar.map((e) => {
-      const label = SOLAR_TYPE_LABEL[e.type] || e.type;
+      const label = t('eclipse.solar.' + e.type) || e.type;
       return `<tr>
         <td>${formatBJ(e.jdTD)}</td>
         <td>${label}</td>
-        <td class="mono">${e.gamma !== undefined ? e.gamma.toFixed(4) : '—'}</td>
-        <td>${e.ac === 0 ? '（臨界）' : ''}</td>
+        <td class="mono">${e.gamma !== undefined ? e.gamma.toFixed(4) : noneStr}</td>
+        <td>${e.ac === 0 ? sp.criticalNote : ''}</td>
       </tr>`;
     }).join('');
     const lunarRows = lunar.map((e, idx) => {
-      const label = LUNAR_LABEL[e.type] || e.type;
+      const label = t('eclipse.lunar.' + e.type) || e.type;
       return `<tr>
         <td>${formatBJ(e.jdTD)}</td>
         <td>${label}</td>
-        <td class="mono">月視半徑 ${e.mr.toFixed(1)}″</td>
-        <td class="mono">中心距 ${e.sep.toFixed(1)}″</td>
-        <td><button type="button" class="btn" data-le-idx="${idx}">時間軸</button></td>
+        <td class="mono">${sp.colMagnitudeMoon} ${e.mr.toFixed(1)}″</td>
+        <td class="mono">${sp.colDistToShadow} ${e.sep.toFixed(1)}″</td>
+        <td><button type="button" class="btn" data-le-idx="${idx}">${t('ui.buttons.timeline')}</button></td>
       </tr>`;
     }).join('');
 
     this.el.querySelector('#se-output').innerHTML = `
       <div class="page-card">
-        <h3>日食（${solar.length} 起）</h3>
+        <h3>${sp.solarSection.replace('{n}', solar.length)}</h3>
         ${solar.length ? `
           <table class="data-table">
-            <thead><tr><th>時刻（北京時）</th><th>類型</th><th>γ 值</th><th>備註</th></tr></thead>
+            <thead><tr><th>${sp.colDateBJ}</th><th>${t('ui.labels.type')}</th><th>${sp.colGamma}</th><th>${t('ui.labels.note')}</th></tr></thead>
             <tbody>${solarRows}</tbody>
-          </table>` : '<p style="color:var(--color-text-soft)">該年無日食。</p>'}
+          </table>` : `<p style="color:var(--color-text-soft)">${sp.noSolar}</p>`}
       </div>
       <div class="page-card">
-        <h3>月食（${lunar.length} 起）</h3>
+        <h3>${sp.lunarSection.replace('{n}', lunar.length)}</h3>
         ${lunar.length ? `
           <table class="data-table">
-            <thead><tr><th>食甚（北京時，近似）</th><th>類型</th><th>月視半徑</th><th>距影中心</th><th></th></tr></thead>
+            <thead><tr><th>${sp.colLunarDateBJ}</th><th>${t('ui.labels.type')}</th><th>${sp.colMagnitudeMoon}</th><th>${sp.colDistToShadow}</th><th></th></tr></thead>
             <tbody>${lunarRows}</tbody>
           </table>
           <div id="se-lunar-detail" style="margin-top:12px"></div>
           <p style="color:var(--color-text-soft);font-size:12px;margin-top:8px">
-            月食食甚時刻為滿月時刻近似值；點擊「時間軸」會以 lecMax 精算該次月食的初虧／食既／食甚／生光／復圓與半影始終。
+            ${sp.lunarNote}
           </p>
-          ` : '<p style="color:var(--color-text-soft)">該年無月食。</p>'}
+          ` : `<p style="color:var(--color-text-soft)">${sp.noLunar}</p>`}
       </div>
     `;
 
@@ -189,22 +185,27 @@ export class SolarEclipsePage {
     const lT = lunarEclipse.lT;
     const LX = lunarEclipse.LX;
     const sf = lunarEclipse.sf;
+    const p = t('eclipse.phases');
+    const noneStr = t('ui.common.none');
     const events = [];
     const push = (jd, key, label) => {
       if (jd && !isNaN(jd) && jd !== 0) events.push({ jd, key, label });
     };
-    push(lT[3], 'Pe1', '半影始');
-    push(lT[1], 'P1',  '初虧');
-    push(lT[5], 'U1',  '食既');
-    push(lT[0], 'Max', '食甚');
-    push(lT[6], 'U4',  '生光');
-    push(lT[2], 'P4',  '復圓');
-    push(lT[4], 'Pe4', '半影終');
+    push(lT[3], 'Pe1', p.Pe1);
+    push(lT[1], 'P1',  p.P1);
+    push(lT[5], 'U1',  p.U1);
+    push(lT[0], 'Max', p.Max);
+    push(lT[6], 'U4',  p.U4);
+    push(lT[2], 'P4',  p.P4);
+    push(lT[4], 'Pe4', p.Pe4);
 
+    // 月食 LX 為 '偏'／'全' 字符（zh-CN）；對應 eclipse.lunar 的完整類型標籤
+    const LX_MAP = { '偏':'partial', '全':'total' };
+    const lxLabel = LX_MAP[LX] ? t('eclipse.lunar.' + LX_MAP[LX]) : noneStr;
     const host = this.el.querySelector('#se-lunar-detail');
     host.innerHTML = `
       <div class="page-card" style="margin:0">
-        <h4 style="margin:0 0 8px">${LX || '—'}（${formatBJ(lT[0] || ev.jdTD)}）食分 ${sf ? sf.toFixed(3) : '—'}</h4>
+        <h4 style="margin:0 0 8px">${lxLabel}（${formatBJ(lT[0] || ev.jdTD)}）${t('eclipse.metrics.magnitude')} ${sf ? sf.toFixed(3) : noneStr}</h4>
         <canvas id="se-lunar-timeline" width="720" height="160"
           style="background:#0d1116;border-radius:8px;display:block;width:100%;max-width:720px;margin:0 auto"></canvas>
       </div>

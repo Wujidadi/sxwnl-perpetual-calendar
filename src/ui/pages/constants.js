@@ -3,55 +3,60 @@
 import * as C from '../../astro/constants.js';
 import { t } from '../../i18n/index.js';
 
-function buildGroups() { return [
-  {
-    title: '地球',
-    rows: [
-      ['EARTH_EQUATORIAL_RADIUS_KM', '地球赤道半徑', 'km',  C.EARTH_EQUATORIAL_RADIUS_KM],
-      ['EARTH_MEAN_RADIUS_KM',       '地球平均半徑', 'km',  C.EARTH_MEAN_RADIUS_KM],
-      ['EARTH_POLAR_EQ_RATIO',       '極/赤半徑比',  '',    C.EARTH_POLAR_EQ_RATIO],
-      ['EARTH_POLAR_EQ_RATIO_SQ',    '極/赤半徑比平方', '', C.EARTH_POLAR_EQ_RATIO_SQ],
-    ],
-  },
-  {
-    title: '太陽與光行',
-    rows: [
-      ['AU_KM',                  '1 天文單位',         'km',     C.AU_KM],
-      ['SIN_SOLAR_PARALLAX',     'sin(太陽視差)',      '',       C.SIN_SOLAR_PARALLAX],
-      ['SOLAR_PARALLAX',         '太陽視差角',         'rad',    C.SOLAR_PARALLAX],
-      ['SPEED_OF_LIGHT_KM_S',    '光速',               'km/s',   C.SPEED_OF_LIGHT_KM_S],
-      ['LIGHT_TIME_PER_AU_JCY',  '每 AU 光行時間',     '儒略世紀', C.LIGHT_TIME_PER_AU_JCY],
-      ['SUN_EARTH_RATIO',        '日/地半徑比',        '',       C.SUN_EARTH_RATIO],
-      ['SUN_RADIUS_ARCSEC',      '太陽視半徑常數',     '"',      C.SUN_RADIUS_ARCSEC],
-    ],
-  },
-  {
-    title: '月球',
-    rows: [
-      ['MOON_EARTH_RATIO_PENUMBRA',   '月/地半徑比（半影）',  '', C.MOON_EARTH_RATIO_PENUMBRA],
-      ['MOON_EARTH_RATIO_UMBRA',      '月/地半徑比（本影）',  '', C.MOON_EARTH_RATIO_UMBRA],
-      ['MOON_RADIUS_FACTOR_PENUMBRA', '月亮視半徑常數（半影）', '', C.MOON_RADIUS_FACTOR_PENUMBRA],
-      ['MOON_RADIUS_FACTOR_UMBRA',    '月亮視半徑常數（本影）', '', C.MOON_RADIUS_FACTOR_UMBRA],
-    ],
-  },
-  {
-    title: '行星',
-    rows: [
-      ['PLANET_NAMES',     '行星名（含冥王星）', '',     t('astro.planets').join('、')],
-      ['SYNODIC_PERIODS',  '行星會合週期',       '日',   C.SYNODIC_PERIODS.join(', ')],
-    ],
-  },
-  {
-    title: '角度與時間',
-    rows: [
-      ['RAD_TO_ARCSEC', '弧度→角秒（每弧度的角秒數）', '"/rad',  C.RAD_TO_ARCSEC],
-      ['RAD_TO_DEG',    '弧度→度（每弧度的度數）',     '°/rad',  C.RAD_TO_DEG],
-      ['TWO_PI',        '2π',                         'rad',   C.TWO_PI],
-      ['HALF_PI',       'π/2',                        'rad',   C.HALF_PI],
-      ['J2000',         'J2000 標準曆元（儒略日）',    'JD',    C.J2000],
-    ],
-  },
-]; }
+function buildGroups() {
+  const s = t('ui.constants.sections');
+  const d = t('ui.constants.descs');
+  const unitDeg = t('ui.labels.day');
+  return [
+    {
+      title: s.earth,
+      rows: [
+        ['EARTH_EQUATORIAL_RADIUS_KM', d.EARTH_EQUATORIAL_RADIUS_KM, 'km', C.EARTH_EQUATORIAL_RADIUS_KM],
+        ['EARTH_MEAN_RADIUS_KM',       d.EARTH_MEAN_RADIUS_KM,       'km', C.EARTH_MEAN_RADIUS_KM],
+        ['EARTH_POLAR_EQ_RATIO',       d.EARTH_POLAR_EQ_RATIO,       '',   C.EARTH_POLAR_EQ_RATIO],
+        ['EARTH_POLAR_EQ_RATIO_SQ',    d.EARTH_POLAR_EQ_RATIO_SQ,    '',   C.EARTH_POLAR_EQ_RATIO_SQ],
+      ],
+    },
+    {
+      title: s.sun,
+      rows: [
+        ['AU_KM',                  d.AU_KM,                  'km',           C.AU_KM],
+        ['SIN_SOLAR_PARALLAX',     d.SIN_SOLAR_PARALLAX,     '',             C.SIN_SOLAR_PARALLAX],
+        ['SOLAR_PARALLAX',         d.SOLAR_PARALLAX,         'rad',          C.SOLAR_PARALLAX],
+        ['SPEED_OF_LIGHT_KM_S',    d.SPEED_OF_LIGHT_KM_S,    'km/s',         C.SPEED_OF_LIGHT_KM_S],
+        ['LIGHT_TIME_PER_AU_JCY',  d.LIGHT_TIME_PER_AU_JCY,  t('ui.common.jcyUnit'), C.LIGHT_TIME_PER_AU_JCY],
+        ['SUN_EARTH_RATIO',        d.SUN_EARTH_RATIO,        '',             C.SUN_EARTH_RATIO],
+        ['SUN_RADIUS_ARCSEC',      d.SUN_RADIUS_ARCSEC,      '"',            C.SUN_RADIUS_ARCSEC],
+      ],
+    },
+    {
+      title: s.moon,
+      rows: [
+        ['MOON_EARTH_RATIO_PENUMBRA',   d.MOON_EARTH_RATIO_PENUMBRA,   '', C.MOON_EARTH_RATIO_PENUMBRA],
+        ['MOON_EARTH_RATIO_UMBRA',      d.MOON_EARTH_RATIO_UMBRA,      '', C.MOON_EARTH_RATIO_UMBRA],
+        ['MOON_RADIUS_FACTOR_PENUMBRA', d.MOON_RADIUS_FACTOR_PENUMBRA, '', C.MOON_RADIUS_FACTOR_PENUMBRA],
+        ['MOON_RADIUS_FACTOR_UMBRA',    d.MOON_RADIUS_FACTOR_UMBRA,    '', C.MOON_RADIUS_FACTOR_UMBRA],
+      ],
+    },
+    {
+      title: s.planets,
+      rows: [
+        ['PLANET_NAMES',     d.PLANET_NAMES,    '',         t('astro.planets').join('、')],
+        ['SYNODIC_PERIODS',  d.SYNODIC_PERIODS, unitDeg,    C.SYNODIC_PERIODS.join(', ')],
+      ],
+    },
+    {
+      title: s.angleTime,
+      rows: [
+        ['RAD_TO_ARCSEC', d.RAD_TO_ARCSEC, '"/rad', C.RAD_TO_ARCSEC],
+        ['RAD_TO_DEG',    d.RAD_TO_DEG,    '°/rad', C.RAD_TO_DEG],
+        ['TWO_PI',        d.TWO_PI,        'rad',   C.TWO_PI],
+        ['HALF_PI',       d.HALF_PI,       'rad',   C.HALF_PI],
+        ['J2000',         d.J2000,         'JD',    C.J2000],
+      ],
+    },
+  ];
+}
 
 function formatValue(v) {
   if (typeof v === 'number') {
@@ -66,14 +71,15 @@ export class ConstantsPage {
   mount(container) {
     const root = document.createElement('section');
     root.className = 'page-constants';
-    let html = '<h2 style="margin-top:0">物理與天文常數</h2>';
+    const h = t('ui.common');
+    let html = `<h2 style="margin-top:0">${t('ui.constants.title')}</h2>`;
     for (const g of buildGroups()) {
       html += `<h3 style="margin-top:24px;margin-bottom:8px">${g.title}</h3>`;
       html += '<table class="data-table"><thead><tr>'
-            + '<th style="width:34%">識別字</th>'
-            + '<th style="width:34%">含義</th>'
-            + '<th style="width:8%">單位</th>'
-            + '<th style="width:24%">值</th>'
+            + `<th style="width:34%">${h.tableHeadId}</th>`
+            + `<th style="width:34%">${h.tableHeadDesc}</th>`
+            + `<th style="width:8%">${h.tableHeadUnit}</th>`
+            + `<th style="width:24%">${h.tableHeadValue}</th>`
             + '</tr></thead><tbody>';
       for (const [id, desc, unit, val] of g.rows) {
         html += `<tr><td><code>${id}</code></td><td>${desc}</td><td>${unit}</td><td class="mono">${formatValue(val)}</td></tr>`;

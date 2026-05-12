@@ -3,10 +3,11 @@
 import { gregorianToJD, formatJD } from '../../../astro/julian-day.js';
 import { civilToAstroYear } from '../../../utils/year-conv.js';
 import { parseTimeToHours } from '../../../utils/time.js';
+import { t } from '../../../i18n/index.js';
 
 // 將儒略日轉為公曆字串。
 export function convertJDToDate(jd) {
-  if (jd < 0) return '不能為負';
+  if (jd < 0) return t('ui.tools.dateJDNegative');
   return formatJD(jd);
 }
 

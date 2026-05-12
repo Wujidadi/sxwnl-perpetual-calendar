@@ -1,18 +1,21 @@
 // 工具：圓周率計算示範（劉徽割圓、祖沖之、連分式、Machin/梅欽公式）。
 
+import { t } from '../../../i18n/index.js';
+
 // 劉徽割圓術。formulaId 0–5 對應 6 種不同迭代方式。
 // 回傳 { title, rows: [{ i, a, T, p }, ...] }
 export function liuHuiCircleCutting(formulaId) {
-  const st = '正弦迭代 T = 2 − √(4 − T)';
-  const ct = '餘弦迭代 T = 2 + √T';
+  const st = t('ui.tools.piIterSin');
+  const ct = t('ui.tools.piIterCos');
   let a, T;
   let title = '';
-  if (formulaId === 0) { a = 6; T = 1; title = '6 邊 T=1 p=3　 ' + ct; }
-  if (formulaId === 1) { a = 4; T = 0; title = '4 邊 T=0 p=2√2' + ct; }
-  if (formulaId === 2) { a = 6; T = 1; title = '6 邊 T=1 p=3　 ' + st; }
-  if (formulaId === 3) { a = 4; T = 2; title = '4 邊 T=2 p=2√2' + st; }
-  if (formulaId === 4) { a = 6; T = 1; title = '6 邊 T=1 補弧田 p=(1+T/24)·3　 ' + st; }
-  if (formulaId === 5) { a = 4; T = 2; title = '4 邊 T=2 補弧田 p=(1+T/24)·2√2' + st; }
+  const fmt = (idx, iter) => t('ui.tools.piTitle' + idx).replace('{fmt}', iter);
+  if (formulaId === 0) { a = 6; T = 1; title = fmt(0, ct); }
+  if (formulaId === 1) { a = 4; T = 0; title = fmt(1, ct); }
+  if (formulaId === 2) { a = 6; T = 1; title = fmt(2, st); }
+  if (formulaId === 3) { a = 4; T = 2; title = fmt(3, st); }
+  if (formulaId === 4) { a = 6; T = 1; title = fmt(4, st); }
+  if (formulaId === 5) { a = 4; T = 2; title = fmt(5, st); }
 
   const rows = [];
   for (let i = 0; i < 30; i++) {

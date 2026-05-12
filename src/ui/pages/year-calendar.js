@@ -4,6 +4,7 @@ import {
   renderYearCalendarHTML,
   renderYearCalendarV2HTML,
 } from '../../lunar/year-calendar.js';
+import { t } from '../../i18n/index.js';
 
 export class YearCalendarPage {
   constructor() {
@@ -14,23 +15,23 @@ export class YearCalendarPage {
     const y = new Date().getFullYear();
     const root = document.createElement('section');
     root.className = 'page-year-calendar';
+    const yc = t('ui.yearCalendar');
     root.innerHTML = `
-      <h2 style="margin-top:0">年曆</h2>
+      <h2 style="margin-top:0">${yc.title}</h2>
       <p style="color:var(--color-text-soft);font-size:13px;margin-top:0">
-        指定公曆年份，列出該年所有農曆月（含閏月）與節氣。
-        v1 標示精確時刻；v2 標示日干支。
+        ${yc.hint}
       </p>
       <form class="page-card" id="yc-form">
         <div class="form-row">
-          <label>年份 <input type="number" id="yc-y" value="${y}" min="-4712" max="9999" step="1" /></label>
+          <label>${t('ui.labels.yearOnly')} <input type="number" id="yc-y" value="${y}" min="-4712" max="9999" step="1" /></label>
           <label>
-            版式
+            ${yc.variantLabel}
             <select id="yc-variant">
-              <option value="v1">v1（精確時刻）</option>
-              <option value="v2">v2（日干支）</option>
+              <option value="v1">${yc.variantV1}</option>
+              <option value="v2">${yc.variantV2}</option>
             </select>
           </label>
-          <button class="btn btn-primary" type="submit">查詢</button>
+          <button class="btn btn-primary" type="submit">${t('ui.buttons.query')}</button>
         </div>
       </form>
       <div class="page-card" id="yc-output"></div>

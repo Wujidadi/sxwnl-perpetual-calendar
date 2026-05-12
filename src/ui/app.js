@@ -29,9 +29,7 @@ export class App {
         </header>
         <nav class="app-nav" aria-label="主導覽"></nav>
         <main class="app-main" id="page-container"></main>
-        <footer class="app-footer">
-          演算法承自壽星萬年曆作者許劍偉。
-        </footer>
+        <footer class="app-footer" id="app-footer"></footer>
       </div>
     `;
     this.nav = root.querySelector('.app-nav');
@@ -47,6 +45,8 @@ export class App {
   renderTitle() {
     this.root.querySelector('#app-title').textContent = t('ui.appTitle');
     this.root.querySelector('#app-locale-label').textContent = t('ui.locale') + '：';
+    this.root.querySelector('#app-footer').textContent = t('ui.footer');
+    document.title = t('ui.appTitle');
   }
 
   renderLocaleSwitch() {

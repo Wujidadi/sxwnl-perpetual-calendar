@@ -3,6 +3,7 @@
 import { gregorianToJD } from '../../astro/julian-day.js';
 import { J2000 } from '../../astro/constants.js';
 import { riseTransitSet } from '../../astro/rise-set.js';
+import { t } from '../../i18n/index.js';
 
 export class RiseSetPage {
   mount(container) {
@@ -13,23 +14,24 @@ export class RiseSetPage {
 
     const root = document.createElement('section');
     root.className = 'page-rise-set';
+    const rs = t('ui.riseSet');
     root.innerHTML = `
-      <h2 style="margin-top:0">日月升降</h2>
+      <h2 style="margin-top:0">${rs.title}</h2>
       <p style="color:var(--color-text-soft);font-size:13px;margin-top:0">
-        指定日期、地理座標與時區，計算日月升中天降時刻；含民用晨昏與晝長。
+        ${rs.hint}
       </p>
       <form class="page-card" id="rs-form">
         <div class="form-row">
-          <label>起始年 <input type="number" id="rs-y" value="${y}" min="-4712" max="9999" /></label>
-          <label>月 <input type="number" id="rs-m" value="${m}" min="1" max="12" /></label>
-          <label>日 <input type="number" id="rs-d" value="${d}" min="1" max="31" /></label>
-          <label>天數 <input type="number" id="rs-n" value="7" min="1" max="31" /></label>
+          <label>${t('ui.labels.year')} <input type="number" id="rs-y" value="${y}" min="-4712" max="9999" /></label>
+          <label>${t('ui.labels.month')} <input type="number" id="rs-m" value="${m}" min="1" max="12" /></label>
+          <label>${t('ui.labels.day')} <input type="number" id="rs-d" value="${d}" min="1" max="31" /></label>
+          <label>${rs.days} <input type="number" id="rs-n" value="7" min="1" max="31" /></label>
         </div>
         <div class="form-row">
-          <label>經度 <input type="number" id="rs-lon" value="121.5" step="0.001" /> °（東經為正）</label>
-          <label>緯度 <input type="number" id="rs-lat" value="25.0"  step="0.001" /> °（北緯為正）</label>
-          <label>UTC 時差 <input type="number" id="rs-tz" value="8" step="0.5" /> 小時</label>
-          <button class="btn btn-primary" type="submit">計算</button>
+          <label>${t('ui.labels.longitude')} <input type="number" id="rs-lon" value="121.5" step="0.001" /> ${rs.lonHint}</label>
+          <label>${t('ui.labels.latitude')} <input type="number" id="rs-lat" value="25.0"  step="0.001" /> ${rs.latHint}</label>
+          <label>${rs.tzLabel} <input type="number" id="rs-tz" value="8" step="0.5" /> ${rs.hourUnit}</label>
+          <button class="btn btn-primary" type="submit">${t('ui.buttons.compute')}</button>
         </div>
       </form>
       <div id="rs-output"></div>
@@ -86,20 +88,21 @@ export class RiseSetPage {
       `);
     }
 
+    const rs = t('ui.riseSet');
     const out = root.querySelector('#rs-output');
     out.innerHTML = `
       <div class="page-card" style="overflow-x:auto">
         <table class="data-table">
           <thead>
             <tr>
-              <th rowspan="2">日期</th>
-              <th colspan="6" style="text-align:center">太陽</th>
-              <th colspan="3" style="text-align:center">月亮</th>
+              <th rowspan="2">${rs.colDate}</th>
+              <th colspan="6" style="text-align:center">${rs.colSun}</th>
+              <th colspan="3" style="text-align:center">${rs.colMoon}</th>
             </tr>
             <tr>
-              <th>日出</th><th>中天</th><th>日落</th>
-              <th>民用晨</th><th>民用昏</th><th>晝長</th>
-              <th>月出</th><th>中天</th><th>月落</th>
+              <th>${rs.colSunrise}</th><th>${rs.colTransit}</th><th>${rs.colSunset}</th>
+              <th>${rs.colCivilDawn}</th><th>${rs.colCivilDusk}</th><th>${rs.colDayLength}</th>
+              <th>${rs.colMoonrise}</th><th>${rs.colTransit}</th><th>${rs.colMoonset}</th>
             </tr>
           </thead>
           <tbody>
@@ -107,7 +110,7 @@ export class RiseSetPage {
           </tbody>
         </table>
         <p style="color:var(--color-text-soft);font-size:12px;margin-top:8px">
-          時刻為當地時間（UTC${tz >= 0 ? '+' : ''}${tz}）。「--:--:--」表示該日無此事件（極區）。
+          ${rs.timeNote.replace('{tz}', (tz >= 0 ? '+' : '') + tz)}
         </p>
       </div>
     `;

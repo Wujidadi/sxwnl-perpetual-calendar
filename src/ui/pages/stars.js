@@ -6,12 +6,16 @@ import { deltaT } from '../../astro/delta-t.js';
 import { parseTimeToHours } from '../../utils/time.js';
 import { computeStarEphemeris } from '../../astro/stellar.js';
 import { searchStarCatalog, parseStarCatalog } from '../../data/stars.js';
+import { t } from '../../i18n/index.js';
 
-const MODES = [
-  { value: 0, label: '視位置（含光行差、章動、岁差）' },
-  { value: 1, label: '站心位置（含大氣折射）' },
-  { value: 2, label: '平位置（僅含歲差）' },
-];
+function buildModes() {
+  const s = t('ui.stars');
+  return [
+    { value: 0, label: s.modeApparent },
+    { value: 1, label: s.modeTopocentric },
+    { value: 2, label: s.modeMean },
+  ];
+}
 
 export class StarsPage {
   mount(container) {
@@ -19,38 +23,36 @@ export class StarsPage {
     const y = today.getFullYear();
     const m = today.getMonth() + 1;
     const d = today.getDate();
-    const modeOptions = MODES.map((mo) => `<option value="${mo.value}">${mo.label}</option>`).join('');
+    const st = t('ui.stars');
+    const modes = buildModes();
+    const modeOptions = modes.map((mo) => `<option value="${mo.value}">${mo.label}</option>`).join('');
 
     const root = document.createElement('section');
     root.className = 'page-stars';
     root.innerHTML = `
-      <h2 style="margin-top:0">恆星</h2>
-      <p style="color:var(--color-text-soft);font-size:13px;margin-top:0">
-        關鍵字檢索內建恆星庫（拉丁名／三字母星座縮寫／光譜均可），計算指定時刻的位置。
-        資料以「星 N + 星座縮寫」形式編碼，常用例：<code>Lyr</code>（天琴座）、<code>UMa</code>（大熊座）、
-        <code>α</code>（所有 α 星）、<code>And</code>（仙女座）。
-      </p>
+      <h2 style="margin-top:0">${st.title}</h2>
+      <p style="color:var(--color-text-soft);font-size:13px;margin-top:0">${st.hint}</p>
       <form class="page-card" id="st-form">
         <div class="form-row">
-          <label>關鍵字 <input type="text" id="st-key" value="Lyr" size="12" /></label>
-          <button class="btn btn-primary" type="submit">檢索並計算</button>
+          <label>${st.keyLabel} <input type="text" id="st-key" value="Lyr" size="12" /></label>
+          <button class="btn btn-primary" type="submit">${st.btnSearch}</button>
         </div>
         <div class="form-row">
-          <label>年 <input type="number" id="st-y" value="${y}" min="-4712" max="9999" /></label>
-          <label>月 <input type="number" id="st-m" value="${m}" min="1" max="12" /></label>
-          <label>日 <input type="number" id="st-d" value="${d}" min="1" max="31" /></label>
-          <label>時間 <input type="text" id="st-t" value="20:00:00" size="10" /></label>
+          <label>${t('ui.labels.year')} <input type="number" id="st-y" value="${y}" min="-4712" max="9999" /></label>
+          <label>${t('ui.labels.month')} <input type="number" id="st-m" value="${m}" min="1" max="12" /></label>
+          <label>${t('ui.labels.day')} <input type="number" id="st-d" value="${d}" min="1" max="31" /></label>
+          <label>${t('ui.labels.time_')} <input type="text" id="st-t" value="20:00:00" size="10" /></label>
         </div>
         <div class="form-row">
-          <label>時標
+          <label>${st.timeScale}
             <select id="st-scale">
               <option value="UT" selected>UTC</option>
               <option value="TD">TD</option>
             </select>
           </label>
-          <label>經度 <input type="number" id="st-lon" value="121.5" step="0.001" /> °</label>
-          <label>緯度 <input type="number" id="st-lat" value="25.0"  step="0.001" /> °</label>
-          <label>模式 <select id="st-mode">${modeOptions}</select></label>
+          <label>${t('ui.labels.longitude')} <input type="number" id="st-lon" value="121.5" step="0.001" /> °</label>
+          <label>${t('ui.labels.latitude')} <input type="number" id="st-lat" value="25.0"  step="0.001" /> °</label>
+          <label>${st.mode} <select id="st-mode">${modeOptions}</select></label>
         </div>
       </form>
       <div class="page-card" id="st-output"></div>
@@ -82,19 +84,20 @@ export class StarsPage {
     const mode = Number(q('st-mode').value);
 
     const out = q('st-output');
+    const st = t('ui.stars');
     if (!key) {
-      out.innerHTML = '<p style="color:var(--color-text-soft)">請輸入關鍵字。</p>';
+      out.innerHTML = `<p style="color:var(--color-text-soft)">${st.pleaseEnter}</p>`;
       return;
     }
 
     const raw = searchStarCatalog(key);
     if (!raw || !raw.trim()) {
-      out.innerHTML = `<p style="color:var(--color-text-soft)">查無「${escapeHtml(key)}」的資料。</p>`;
+      out.innerHTML = `<p style="color:var(--color-text-soft)">${st.noResult.replace('{key}', escapeHtml(key))}</p>`;
       return;
     }
     const stars = parseStarCatalog(raw, 1);
     if (!stars.length) {
-      out.innerHTML = `<p style="color:var(--color-text-soft)">關鍵字「${escapeHtml(key)}」未匹配到星表中可解析的項目。</p>`;
+      out.innerHTML = `<p style="color:var(--color-text-soft)">${st.noParse.replace('{key}', escapeHtml(key))}</p>`;
       return;
     }
 
@@ -105,7 +108,7 @@ export class StarsPage {
     const text = computeStarEphemeris(jcy, stars, 0.1, mode, lon * Math.PI / 180, lat * Math.PI / 180);
 
     out.innerHTML = `
-      <h3>檢索「${escapeHtml(key)}」（${stars.length / 8} 項）</h3>
+      <h3>${st.resultHead.replace('{key}', escapeHtml(key)).replace('{n}', stars.length / 8)}</h3>
       <pre class="text-output">${escapeHtml(text)}</pre>
     `;
   }

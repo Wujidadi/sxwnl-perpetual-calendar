@@ -10,7 +10,7 @@ import {
   moonSunDiffToTime,
 } from '../astro/ephemeris.js';
 import { equationOfTimeFast } from '../astro/sidereal-time.js';
-import { t } from '../i18n/index.js';
+import { t, tFestival } from '../i18n/index.js';
 
 // 注意：節日字串目前仍為簡體中文，將於後續批次抽入字典。
 
@@ -91,40 +91,40 @@ export function getLunarDayName(u, r) {
   // 按農曆日期查找重要節假日
   const d = u.lunarMonthName + (u.lunarMonthName.length < 2 ? '月' : '') + u.lunarDayName;
   if (u.lunarLeap !== t('lunar.leapPrefix')) {
-    if (d === '正月初一') { r.holidayA += '春节 ';     r.isHoliday = 1; }
-    if (d === '正月初二') { r.holidayB += '大年初二 '; r.isHoliday = 1; }
-    if (d === '五月初五') { r.holidayA += '端午节 ';   r.isHoliday = 1; }
-    if (d === '八月十五') { r.holidayA += '中秋节 ';   r.isHoliday = 1; }
-    if (d === '正月十五') { r.holidayA += '元宵节 '; r.holidayB += '上元节 '; r.holidayC += '壮族歌墟节 苗族踩山节 达斡尔族卡钦 '; }
-    if (d === '正月十六') r.holidayC += '侗族芦笙节(至正月二十) ';
-    if (d === '正月廿五') r.holidayC += '填仓节 ';
-    if (d === '正月廿九') r.holidayC += '送穷日 ';
-    if (d === '二月初一') r.holidayC += '瑶族忌鸟节 ';
-    if (d === '二月初二') { r.holidayB += '春龙节(龙抬头) '; r.holidayC += '畲族会亲节 '; }
-    if (d === '二月初八') r.holidayC += '傈傈族刀杆节 ';
-    if (d === '三月初三') { r.holidayB += '北帝诞 '; r.holidayC += '苗族黎族歌墟节 '; }
-    if (d === '三月十五') r.holidayC += '白族三月街(至三月二十) ';
-    if (d === '三月廿三') r.holidayB += '天后诞 妈祖诞 ';
-    if (d === '四月初八') r.holidayB += '牛王诞 ';
-    if (d === '四月十八') r.holidayC += '锡伯族西迁节 ';
-    if (d === '五月十三') { r.holidayB += '关帝诞 '; r.holidayC += '阿昌族泼水节 '; }
-    if (d === '五月廿二') r.holidayC += '鄂温克族米阔鲁节 ';
-    if (d === '五月廿九') r.holidayC += '瑶族达努节 ';
-    if (d === '六月初六') { r.holidayB += '姑姑节 天贶节 '; r.holidayC += '壮族祭田节 瑶族尝新节 '; }
-    if (d === '六月廿四') r.holidayC += '火把节、星回节(彝、白、佤、阿昌、纳西、基诺族 ) ';
-    if (d === '七月初七') r.holidayB += '七夕(中国情人节,乞巧节,女儿节 ) ';
-    if (d === '七月十三') r.holidayC += '侗族吃新节 ';
-    if (d === '七月十五') r.holidayB += '中元节 鬼节';
-    if (d === '九月初九') r.holidayB += '重阳节 ';
-    if (d === '十月初一') r.holidayB += '祭祖节(十月朝) ';
-    if (d === '十月十五') r.holidayB += '下元节 ';
-    if (d === '十月十六') r.holidayC += '瑶族盘王节 ';
-    if (d === '十二初八') r.holidayB += '腊八节 ';
+    if (d === '正月初一') { r.holidayA += tFestival('春节') + ' ';     r.isHoliday = 1; }
+    if (d === '正月初二') { r.holidayB += tFestival('大年初二') + ' '; r.isHoliday = 1; }
+    if (d === '五月初五') { r.holidayA += tFestival('端午节') + ' ';   r.isHoliday = 1; }
+    if (d === '八月十五') { r.holidayA += tFestival('中秋节') + ' ';   r.isHoliday = 1; }
+    if (d === '正月十五') { r.holidayA += tFestival('元宵节') + ' '; r.holidayB += tFestival('上元节') + ' '; r.holidayC += tFestival('壮族歌墟节 苗族踩山节 达斡尔族卡钦') + ' '; }
+    if (d === '正月十六') r.holidayC += tFestival('侗族芦笙节(至正月二十)') + ' ';
+    if (d === '正月廿五') r.holidayC += tFestival('填仓节') + ' ';
+    if (d === '正月廿九') r.holidayC += tFestival('送穷日') + ' ';
+    if (d === '二月初一') r.holidayC += tFestival('瑶族忌鸟节') + ' ';
+    if (d === '二月初二') { r.holidayB += tFestival('春龙节(龙抬头)') + ' '; r.holidayC += tFestival('畲族会亲节') + ' '; }
+    if (d === '二月初八') r.holidayC += tFestival('傈傈族刀杆节') + ' ';
+    if (d === '三月初三') { r.holidayB += tFestival('北帝诞') + ' '; r.holidayC += tFestival('苗族黎族歌墟节') + ' '; }
+    if (d === '三月十五') r.holidayC += tFestival('白族三月街(至三月二十)') + ' ';
+    if (d === '三月廿三') r.holidayB += tFestival('天后诞 妈祖诞') + ' ';
+    if (d === '四月初八') r.holidayB += tFestival('牛王诞') + ' ';
+    if (d === '四月十八') r.holidayC += tFestival('锡伯族西迁节') + ' ';
+    if (d === '五月十三') { r.holidayB += tFestival('关帝诞') + ' '; r.holidayC += tFestival('阿昌族泼水节') + ' '; }
+    if (d === '五月廿二') r.holidayC += tFestival('鄂温克族米阔鲁节') + ' ';
+    if (d === '五月廿九') r.holidayC += tFestival('瑶族达努节') + ' ';
+    if (d === '六月初六') { r.holidayB += tFestival('姑姑节 天贶节') + ' '; r.holidayC += tFestival('壮族祭田节 瑶族尝新节') + ' '; }
+    if (d === '六月廿四') r.holidayC += tFestival('火把节、星回节(彝、白、佤、阿昌、纳西、基诺族 )') + ' ';
+    if (d === '七月初七') r.holidayB += tFestival('七夕(中国情人节,乞巧节,女儿节 )') + ' ';
+    if (d === '七月十三') r.holidayC += tFestival('侗族吃新节') + ' ';
+    if (d === '七月十五') r.holidayB += tFestival('中元节 鬼节');
+    if (d === '九月初九') r.holidayB += tFestival('重阳节') + ' ';
+    if (d === '十月初一') r.holidayB += tFestival('祭祖节(十月朝)') + ' ';
+    if (d === '十月十五') r.holidayB += tFestival('下元节') + ' ';
+    if (d === '十月十六') r.holidayC += tFestival('瑶族盘王节') + ' ';
+    if (d === '十二初八') r.holidayB += tFestival('腊八节') + ' ';
   }
   if (u.lunarNextMonthName === '正') {
-    if (d === '十二三十' && u.lunarMonthLength === 30) { r.holidayA += '除夕 '; r.isHoliday = 1; }
-    if (d === '十二廿九' && u.lunarMonthLength === 29) { r.holidayA += '除夕 '; r.isHoliday = 1; }
-    if (d === '十二廿三') r.holidayB += '小年 ';
+    if (d === '十二三十' && u.lunarMonthLength === 30) { r.holidayA += tFestival('除夕') + ' '; r.isHoliday = 1; }
+    if (d === '十二廿九' && u.lunarMonthLength === 29) { r.holidayA += tFestival('除夕') + ' '; r.isHoliday = 1; }
+    if (d === '十二廿三') r.holidayB += tFestival('小年') + ' ';
   }
   if (u.solarTermLabel) {
     if (u.solarTermLabel === '清明') { r.holidayA += u.solarTermLabel + ' '; r.isHoliday = 1; }
@@ -141,11 +141,11 @@ export function getLunarDayName(u, r) {
 
   const stem   = u.lunarDayGanZhi.substr(0, 1);
   const branch = u.lunarDayGanZhi.substr(1, 1);
-  if (u.daysSinceXiazhi   >= 20 && u.daysSinceXiazhi   < 30 && stem   === '庚') r.holidayB += '初伏 ';
-  if (u.daysSinceXiazhi   >= 30 && u.daysSinceXiazhi   < 40 && stem   === '庚') r.holidayB += '中伏 ';
-  if (u.daysSinceLiqiu    >= 0  && u.daysSinceLiqiu    < 10 && stem   === '庚') r.holidayB += '末伏 ';
-  if (u.daysSinceMangzhong >= 0 && u.daysSinceMangzhong < 10 && stem   === '丙') r.holidayB += '入梅 ';
-  if (u.daysSinceXiaoshu  >= 0  && u.daysSinceXiaoshu  < 12 && branch === '未') r.holidayB += '出梅 ';
+  if (u.daysSinceXiazhi   >= 20 && u.daysSinceXiazhi   < 30 && stem   === '庚') r.holidayB += tFestival('初伏') + ' ';
+  if (u.daysSinceXiazhi   >= 30 && u.daysSinceXiazhi   < 40 && stem   === '庚') r.holidayB += tFestival('中伏') + ' ';
+  if (u.daysSinceLiqiu    >= 0  && u.daysSinceLiqiu    < 10 && stem   === '庚') r.holidayB += tFestival('末伏') + ' ';
+  if (u.daysSinceMangzhong >= 0 && u.daysSinceMangzhong < 10 && stem   === '丙') r.holidayB += tFestival('入梅') + ' ';
+  if (u.daysSinceXiaoshu  >= 0  && u.daysSinceXiaoshu  < 12 && branch === '未') r.holidayB += tFestival('出梅') + ' ';
 }
 
 // 命理八字。jd 為格林尼治 UT（J2000 起算），J 為本地經度（弧度）。

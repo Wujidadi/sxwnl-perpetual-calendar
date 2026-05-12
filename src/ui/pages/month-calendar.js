@@ -17,15 +17,16 @@ export class MonthCalendarPage {
     const today = new Date();
     this.year = today.getFullYear();
     this.month = today.getMonth() + 1;
+    const mc = t('ui.monthCalendar');
     container.innerHTML = `
       <section class="page-month-calendar">
         <form class="form-row" id="cal-form">
-          <label>年份 <input type="number" id="cal-year" min="-4712" max="9999" step="1" value="${this.year}" /></label>
-          <label>月份 <input type="number" id="cal-month" min="1" max="12" step="1" value="${this.month}" /></label>
-          <button class="btn btn-primary" type="submit">查看</button>
-          <button class="btn" type="button" id="cal-today">今日</button>
-          <button class="btn" type="button" id="cal-prev">‹ 上月</button>
-          <button class="btn" type="button" id="cal-next">下月 ›</button>
+          <label>${mc.yearLabel} <input type="number" id="cal-year" min="-4712" max="9999" step="1" value="${this.year}" /></label>
+          <label>${mc.monthLabel} <input type="number" id="cal-month" min="1" max="12" step="1" value="${this.month}" /></label>
+          <button class="btn btn-primary" type="submit">${mc.btnView}</button>
+          <button class="btn" type="button" id="cal-today">${mc.btnToday}</button>
+          <button class="btn" type="button" id="cal-prev">${mc.btnPrev}</button>
+          <button class="btn" type="button" id="cal-next">${mc.btnNext}</button>
         </form>
         <div id="cal-output"></div>
       </section>
@@ -80,11 +81,14 @@ export class MonthCalendarPage {
     wrap.className = 'calendar-header';
     const today = new Date();
     const isCurrent = today.getFullYear() === this.year && (today.getMonth() + 1) === this.month;
+    const mc = t('ui.monthCalendar');
+    const yLabel = t('ui.labels.year');
+    const mLabel = t('ui.labels.month');
     wrap.innerHTML = `
       <div>
-        <div class="calendar-title">${this.year} 年 ${this.month} 月${isCurrent ? '（本月）' : ''}</div>
+        <div class="calendar-title">${this.year} ${yLabel} ${this.month} ${mLabel}${isCurrent ? mc.currentMark : ''}</div>
         <div class="calendar-meta">
-          農曆 <strong>${this.lunar.yearGanZhi}</strong> 年（${this.lunar.zodiacAnimal}）
+          ${mc.meta.replace('{ganZhi}', `<strong>${this.lunar.yearGanZhi}</strong>`).replace('{zodiac}', this.lunar.zodiacAnimal)}
           ${this.lunar.reignTitle ? '・' + escapeHtml(this.lunar.reignTitle) : ''}
         </div>
       </div>
@@ -144,9 +148,9 @@ export class MonthCalendarPage {
 
     // 農曆日（初一顯示月名，其餘顯示日名）
     const lun = document.createElement('div');
-    if (day.lunarDayName === '初一') {
+    if (day.lunarDayName === t('lunar.dayNames')[0]) {
       lun.className = 'calendar-lunar is-month';
-      lun.textContent = (day.lunarLeap || '') + day.lunarMonthName + '月';
+      lun.textContent = (day.lunarLeap || '') + day.lunarMonthName + t('ui.labels.month');
     } else {
       lun.className = 'calendar-lunar';
       lun.textContent = day.lunarDayName;
@@ -178,19 +182,21 @@ export class MonthCalendarPage {
   }
 
   renderEvents() {
+    const dayLabel = t('ui.monthCalendar.dayLabel');
     const phases = [];
     const terms = [];
     for (let i = 0; i < this.lunar.monthLength; i++) {
       const d = this.lunar.days[i];
-      if (d.moonPhaseName) phases.push(`${pad2(d.day)} 日 ${d.moonPhaseTimeStr} ${d.moonPhaseName}`);
-      if (d.solarTermName) terms.push(`${pad2(d.day)} 日 ${d.solarTermTimeStr} ${d.solarTermName}`);
+      if (d.moonPhaseName) phases.push(`${pad2(d.day)} ${dayLabel} ${d.moonPhaseTimeStr} ${d.moonPhaseName}`);
+      if (d.solarTermName) terms.push(`${pad2(d.day)} ${dayLabel} ${d.solarTermTimeStr} ${d.solarTermName}`);
     }
     if (!phases.length && !terms.length) return null;
+    const mc = t('ui.monthCalendar');
     const box = document.createElement('div');
     box.className = 'calendar-events';
     box.innerHTML = `
-      ${phases.length ? `<h3>月相</h3><ul>${phases.map((s) => `<li>${s}</li>`).join('')}</ul>` : ''}
-      ${terms.length  ? `<h3>節氣</h3><ul>${terms.map((s) => `<li>${s}</li>`).join('')}</ul>` : ''}
+      ${phases.length ? `<h3>${mc.moonPhasesTitle}</h3><ul>${phases.map((s) => `<li>${s}</li>`).join('')}</ul>` : ''}
+      ${terms.length  ? `<h3>${mc.solarTermsTitle}</h3><ul>${terms.map((s) => `<li>${s}</li>`).join('')}</ul>` : ''}
     `;
     return box;
   }
@@ -209,15 +215,16 @@ function trimFestival(s) {
 }
 
 function buildTooltip(day) {
+  const mc = t('ui.monthCalendar');
   const lines = [];
   lines.push(`${day.year}-${pad2(day.month)}-${pad2(day.day)}（${t('weekday.prefix')}${t('weekday.short')[day.weekday]}）`);
-  lines.push(`農曆 ${day.lunarLeap || ''}${day.lunarMonthName}月${day.lunarDayName}`);
-  lines.push(`${day.lunarYearGanZhi}年 ${day.lunarMonthGanZhi}月 ${day.lunarDayGanZhi}日 ${day.zodiacSign}`);
-  if (day.hijriYear) lines.push(`回曆 ${day.hijriYear}/${pad2(day.hijriMonth)}/${pad2(day.hijriDay)}`);
-  if (day.solarTermName) lines.push(`節氣：${day.solarTermName}（${day.solarTermTimeStr}）`);
-  if (day.moonPhaseName) lines.push(`月相：${day.moonPhaseName}（${day.moonPhaseTimeStr}）`);
+  lines.push(mc.tooltipLunar.replace('{leap}', day.lunarLeap || '').replace('{month}', day.lunarMonthName).replace('{day}', day.lunarDayName));
+  lines.push(mc.tooltipGanzhi.replace('{y}', day.lunarYearGanZhi).replace('{m}', day.lunarMonthGanZhi).replace('{d}', day.lunarDayGanZhi).replace('{zod}', day.zodiacSign));
+  if (day.hijriYear) lines.push(mc.tooltipHijri.replace('{y}', day.hijriYear).replace('{m}', pad2(day.hijriMonth)).replace('{d}', pad2(day.hijriDay)));
+  if (day.solarTermName) lines.push(mc.tooltipTerm.replace('{name}', day.solarTermName).replace('{t}', day.solarTermTimeStr));
+  if (day.moonPhaseName) lines.push(mc.tooltipPhase.replace('{name}', day.moonPhaseName).replace('{t}', day.moonPhaseTimeStr));
   const festival = (day.holidayA + day.holidayB + day.holidayC).trim();
-  if (festival) lines.push(`節日：${festival}`);
+  if (festival) lines.push(mc.tooltipFestival.replace('{s}', festival));
   return lines.join('\n');
 }
 

@@ -1,5 +1,7 @@
 // 公曆基礎：固定節日表、按週節日表、節日查詢、回曆（伊斯蘭曆）換算。
-// 節日字串內容（中文名稱）屬 i18n 字典範疇，待後續翻譯抽出。
+// 節日字串以 zh-CN 為原字串儲存，輸出時透過 tFestival 取得當前語系版本。
+
+import { tFestival } from '../i18n/index.js';
 
 // 月內第 N 個星期 W 的節日表。
 // 格式：MMNQ<type><節日名>，其中 MM=月份(2 位)、N=第幾個(0=最後、1-5=順位)、
@@ -68,9 +70,10 @@ export function getDayName(u, r) {
       if (u.year < 1850) continue;
       s = s.substr(1, s.length - 1);
     }
-    if (type === '#') { r.holidayA += s + ' '; r.isHoliday = 1; }
-    if (type === 'I')   r.holidayB += s + ' ';
-    if (type === '.')   r.holidayC += s + ' ';
+    const tr = tFestival(s);
+    if (type === '#') { r.holidayA += tr + ' '; r.isHoliday = 1; }
+    if (type === 'I')   r.holidayB += tr + ' ';
+    if (type === '.')   r.holidayC += tr + ' ';
   }
 
   // 按週查找：本月的第 N 個星期 W
@@ -85,9 +88,10 @@ export function getDayName(u, r) {
     if (s2 !== wKey && s2 !== w2Key) continue;
     const type = s.substr(4, 1);
     s = s.substr(5, s.length - 5);
-    if (type === '#') { r.holidayA += s + ' '; r.isHoliday = 1; }
-    if (type === 'I')   r.holidayB += s + ' ';
-    if (type === '.')   r.holidayC += s + ' ';
+    const tr = tFestival(s);
+    if (type === '#') { r.holidayA += tr + ' '; r.isHoliday = 1; }
+    if (type === 'I')   r.holidayB += tr + ' ';
+    if (type === '.')   r.holidayC += tr + ' ';
   }
 }
 
