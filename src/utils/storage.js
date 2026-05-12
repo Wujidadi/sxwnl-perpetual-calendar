@@ -32,6 +32,7 @@ export const persistentStorage = {
   },
 
   _setCookie(name, value, t) {
+    if (typeof document === 'undefined') return;
     const d = new Date();
     d.setTime(d.getTime() + (t * 86400 * 1000));
     const expires = 'expires=' + d.toUTCString();
@@ -39,9 +40,33 @@ export const persistentStorage = {
   },
 
   _getCookie(name) {
+    if (typeof document === 'undefined') return null;
     const reg = new RegExp('(^| )' + name + '=([^;]*)(;|$)');
     const arr = document.cookie.match(reg);
     if (arr) return arr[2];
     return null;
   },
 };
+
+// 表單欄位記憶：以 pageId 為 namespace，把表單欄位序列化存入 localStorage。
+const FORM_STATE_PREFIX = 'pc.formState.';
+
+export function saveFormState(pageId, fields) {
+  if (!pageId || !fields) return;
+  try {
+    persistentStorage.setItem(FORM_STATE_PREFIX + pageId, JSON.stringify(fields), 365);
+  } catch (e) {
+    console.warn('saveFormState 失敗:', e);
+  }
+}
+
+export function loadFormState(pageId) {
+  if (!pageId) return null;
+  try {
+    const s = persistentStorage.getItem(FORM_STATE_PREFIX + pageId);
+    return s ? JSON.parse(s) : null;
+  } catch (e) {
+    console.warn('loadFormState 失敗:', e);
+    return null;
+  }
+}

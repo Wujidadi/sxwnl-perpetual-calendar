@@ -6,6 +6,7 @@ import { deltaT } from '../../astro/delta-t.js';
 import { parseTimeToHours } from '../../utils/time.js';
 import { planetEphemeris } from '../../astro/planet-events.js';
 import { t } from '../../i18n/index.js';
+import { saveFormState, loadFormState } from '../../utils/storage.js';
 
 // 可選天體：xt 編號對應 planetEphemeris 內部派發。
 function buildBodies() {
@@ -28,12 +29,19 @@ function buildBodies() {
 export class EphemerisPage {
   mount(container) {
     const today = new Date();
-    const y = today.getFullYear();
-    const m = today.getMonth() + 1;
-    const d = today.getDate();
+    const saved = loadFormState('ephemeris') || {};
+    const y = saved.y ?? today.getFullYear();
+    const m = saved.m ?? today.getMonth() + 1;
+    const d = saved.d ?? today.getDate();
+    const time = saved.time ?? '12:00:00';
+    const scale = saved.scale ?? 'TD';
+    const lon = saved.lon ?? 121.5;
+    const lat = saved.lat ?? 25.0;
+    const xt  = saved.xt  ?? 9;
 
     const bodies = buildBodies();
-    const bodyOptions = bodies.map((b) => `<option value="${b.xt}">${b.name}</option>`).join('');
+    const bodyOptions = bodies.map((b) =>
+      `<option value="${b.xt}"${b.xt === xt ? ' selected' : ''}>${b.name}</option>`).join('');
     const ep = t('ui.ephemeris');
 
     const root = document.createElement('section');
@@ -48,17 +56,17 @@ export class EphemerisPage {
           <label>${t('ui.labels.year')} <input type="number" id="ep-y" value="${y}" min="-4712" max="9999" /></label>
           <label>${t('ui.labels.month')} <input type="number" id="ep-m" value="${m}" min="1" max="12" /></label>
           <label>${t('ui.labels.day')} <input type="number" id="ep-d" value="${d}" min="1" max="31" /></label>
-          <label>${t('ui.labels.time_')} <input type="text" id="ep-t" value="12:00:00" size="10" /></label>
+          <label>${t('ui.labels.time_')} <input type="text" id="ep-t" value="${time}" size="10" /></label>
         </div>
         <div class="form-row">
           <label>${ep.timeScale}
             <select id="ep-scale">
-              <option value="UT">${ep.timeScaleUT}</option>
-              <option value="TD" selected>${ep.timeScaleTD}</option>
+              <option value="UT"${scale === 'UT' ? ' selected' : ''}>${ep.timeScaleUT}</option>
+              <option value="TD"${scale === 'TD' ? ' selected' : ''}>${ep.timeScaleTD}</option>
             </select>
           </label>
-          <label>${t('ui.labels.longitude')} <input type="number" id="ep-lon" value="121.5" step="0.001" /> °</label>
-          <label>${t('ui.labels.latitude')} <input type="number" id="ep-lat" value="25.0"  step="0.001" /> °</label>
+          <label>${t('ui.labels.longitude')} <input type="number" id="ep-lon" value="${lon}" step="0.001" /> °</label>
+          <label>${t('ui.labels.latitude')} <input type="number" id="ep-lat" value="${lat}"  step="0.001" /> °</label>
           <label>${ep.bodySel}
             <select id="ep-xt">${bodyOptions}</select>
           </label>
@@ -86,13 +94,14 @@ export class EphemerisPage {
     const y = Number(q('ep-y').value);
     const m = Number(q('ep-m').value);
     const d = Number(q('ep-d').value);
-    const t = q('ep-t').value;
+    const time = q('ep-t').value;
     const scale = q('ep-scale').value;
     const lon = Number(q('ep-lon').value);
     const lat = Number(q('ep-lat').value);
     const xt  = Number(q('ep-xt').value);
+    saveFormState('ephemeris', { y, m, d, time, scale, lon, lat, xt });
 
-    const day = d + parseTimeToHours(t) / 24;
+    const day = d + parseTimeToHours(time) / 24;
     let jdTD = gregorianToJD(y, m, day) - J2000;
     if (scale === 'UT') jdTD += deltaT(jdTD);
 

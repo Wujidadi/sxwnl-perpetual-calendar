@@ -3,6 +3,7 @@
 
 import { LunarMonth } from '../../lunar/lunar-month.js';
 import { t } from '../../i18n/index.js';
+import { saveFormState, loadFormState } from '../../utils/storage.js';
 
 export class MonthCalendarPage {
   constructor() {
@@ -15,8 +16,9 @@ export class MonthCalendarPage {
   mount(container) {
     this.container = container;
     const today = new Date();
-    this.year = today.getFullYear();
-    this.month = today.getMonth() + 1;
+    const saved = loadFormState('month-calendar') || {};
+    this.year = saved.year ?? today.getFullYear();
+    this.month = saved.month ?? today.getMonth() + 1;
     const mc = t('ui.monthCalendar');
     container.innerHTML = `
       <section class="page-month-calendar">
@@ -25,6 +27,8 @@ export class MonthCalendarPage {
           <label>${mc.monthLabel} <input type="number" id="cal-month" min="1" max="12" step="1" value="${this.month}" /></label>
           <button class="btn btn-primary" type="submit">${mc.btnView}</button>
           <button class="btn" type="button" id="cal-today">${mc.btnToday}</button>
+          <button class="btn" type="button" id="cal-prev-year">${mc.btnPrevYear}</button>
+          <button class="btn" type="button" id="cal-next-year">${mc.btnNextYear}</button>
           <button class="btn" type="button" id="cal-prev">${mc.btnPrev}</button>
           <button class="btn" type="button" id="cal-next">${mc.btnNext}</button>
         </form>
@@ -43,6 +47,8 @@ export class MonthCalendarPage {
     });
     container.querySelector('#cal-prev').addEventListener('click', () => this.shift(-1));
     container.querySelector('#cal-next').addEventListener('click', () => this.shift(+1));
+    container.querySelector('#cal-prev-year').addEventListener('click', () => this.render(this.year - 1, this.month));
+    container.querySelector('#cal-next-year').addEventListener('click', () => this.render(this.year + 1, this.month));
     this.render(this.year, this.month);
   }
 
@@ -61,6 +67,7 @@ export class MonthCalendarPage {
   render(year, month) {
     this.year = year;
     this.month = month;
+    saveFormState('month-calendar', { year, month });
     this.lunar = new LunarMonth();
     this.lunar.calcMonth(year, month);
 

@@ -3,8 +3,12 @@
 
 import { PAGES, findPage } from './pages.js';
 import { t, getLocale, setLocale, getSupported, onLocaleChange } from '../i18n/index.js';
+import { persistentStorage } from '../utils/storage.js';
 
-const STORAGE_KEY = 'pc.activePageId';
+const STORAGE_KEY      = 'pc.activePageId';
+const THEME_KEY        = 'pc.theme';
+const LOCALE_TOAST_KEY = 'pc.localeAutoToastSeen';
+const I18N_LOCALE_KEY  = 'perpetual-calendar.locale';
 
 export class App {
   constructor() {
@@ -25,27 +29,106 @@ export class App {
           <div class="app-locale-switch">
             <label for="app-locale-select" id="app-locale-label"></label>
             <select id="app-locale-select"></select>
+            <button type="button" class="app-theme-toggle" id="app-theme-toggle" aria-label="theme"></button>
           </div>
         </header>
         <nav class="app-nav" aria-label="主導覽"></nav>
+        <div class="app-kbd-hint" id="app-kbd-hint"></div>
         <main class="app-main" id="page-container"></main>
         <footer class="app-footer" id="app-footer"></footer>
+        <div class="app-toast" id="app-toast" hidden></div>
       </div>
     `;
     this.nav = root.querySelector('.app-nav');
     this.pageContainer = root.querySelector('#page-container');
+    this.applyInitialTheme();
     this.renderTitle();
     this.renderLocaleSwitch();
+    this.renderThemeToggle();
     this.renderNav();
     this.navigate(this.readActivePageId() || PAGES[0].id);
     this.bindHash();
+    this.bindKeyboard();
     onLocaleChange(() => this.onLocaleChanged());
+    this.maybeShowLocaleAutoToast();
+  }
+
+  applyInitialTheme() {
+    let theme;
+    try { theme = persistentStorage.getItem(THEME_KEY); } catch (_) {}
+    if (!theme) {
+      const prefersDark = typeof window !== 'undefined'
+        && window.matchMedia
+        && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      theme = prefersDark ? 'dark' : 'light';
+    }
+    document.documentElement.dataset.theme = theme;
+  }
+
+  renderThemeToggle() {
+    const btn = this.root.querySelector('#app-theme-toggle');
+    const refresh = () => {
+      const cur = document.documentElement.dataset.theme || 'light';
+      btn.textContent = cur === 'dark' ? t('ui.themeLight') : t('ui.themeDark');
+      btn.title = t('ui.themeTooltip');
+    };
+    refresh();
+    btn.addEventListener('click', () => {
+      const cur = document.documentElement.dataset.theme || 'light';
+      const next = cur === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      try { persistentStorage.setItem(THEME_KEY, next, 365); } catch (_) {}
+      refresh();
+    });
+    this._refreshThemeToggle = refresh;
+  }
+
+  // 首次進入且使用者尚未手動設定 locale → 顯示短暫 toast。
+  maybeShowLocaleAutoToast() {
+    let stored, seen;
+    try {
+      stored = persistentStorage.getItem(I18N_LOCALE_KEY);
+      seen   = persistentStorage.getItem(LOCALE_TOAST_KEY);
+    } catch (_) {}
+    if (stored || seen) return;
+    this.showToast(t('ui.localeAutoToast'));
+    try { persistentStorage.setItem(LOCALE_TOAST_KEY, '1', 365); } catch (_) {}
+  }
+
+  showToast(text, ms = 4000) {
+    const el = this.root.querySelector('#app-toast');
+    if (!el) return;
+    el.textContent = text;
+    el.hidden = false;
+    el.classList.add('is-visible');
+    if (this._toastTimer) clearTimeout(this._toastTimer);
+    this._toastTimer = setTimeout(() => {
+      el.classList.remove('is-visible');
+      setTimeout(() => { el.hidden = true; }, 300);
+    }, ms);
+  }
+
+  // ←／→ 切換上／下一個分頁；忽略在 input／textarea／select／contentEditable 中觸發。
+  bindKeyboard() {
+    window.addEventListener('keydown', (e) => {
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
+      const tag = (e.target.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+      if (e.target.isContentEditable) return;
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      const idx = PAGES.findIndex((p) => p.id === (this.currentPage && this.currentPage.id));
+      if (idx < 0) return;
+      const next = e.key === 'ArrowLeft' ? (idx - 1 + PAGES.length) % PAGES.length : (idx + 1) % PAGES.length;
+      this.navigate(PAGES[next].id);
+      e.preventDefault();
+    });
   }
 
   renderTitle() {
     this.root.querySelector('#app-title').textContent = t('ui.appTitle');
     this.root.querySelector('#app-locale-label').textContent = t('ui.locale') + '：';
     this.root.querySelector('#app-footer').textContent = t('ui.footer');
+    this.root.querySelector('#app-kbd-hint').textContent = t('ui.kbdHint');
     document.title = t('ui.appTitle');
   }
 
@@ -61,6 +144,7 @@ export class App {
   onLocaleChanged() {
     this.renderTitle();
     this.renderNav();
+    if (this._refreshThemeToggle) this._refreshThemeToggle();
     if (this.currentPage) this.navigate(this.currentPage.id);
   }
 

@@ -7,6 +7,7 @@ import { parseTimeToHours } from '../../utils/time.js';
 import { computeStarEphemeris } from '../../astro/stellar.js';
 import { searchStarCatalog, parseStarCatalog } from '../../data/stars.js';
 import { t, tStar } from '../../i18n/index.js';
+import { saveFormState, loadFormState } from '../../utils/storage.js';
 
 function buildModes() {
   const s = t('ui.stars');
@@ -20,12 +21,20 @@ function buildModes() {
 export class StarsPage {
   mount(container) {
     const today = new Date();
-    const y = today.getFullYear();
-    const m = today.getMonth() + 1;
-    const d = today.getDate();
+    const saved = loadFormState('stars') || {};
+    const y = saved.y ?? today.getFullYear();
+    const m = saved.m ?? today.getMonth() + 1;
+    const d = saved.d ?? today.getDate();
+    const key = saved.key ?? 'Lyr';
+    const time = saved.time ?? '20:00:00';
+    const scale = saved.scale ?? 'UT';
+    const lon = saved.lon ?? 121.5;
+    const lat = saved.lat ?? 25.0;
+    const mode = saved.mode ?? 0;
     const st = t('ui.stars');
     const modes = buildModes();
-    const modeOptions = modes.map((mo) => `<option value="${mo.value}">${mo.label}</option>`).join('');
+    const modeOptions = modes.map((mo) =>
+      `<option value="${mo.value}"${Number(mo.value) === Number(mode) ? ' selected' : ''}>${mo.label}</option>`).join('');
 
     const root = document.createElement('section');
     root.className = 'page-stars';
@@ -34,24 +43,24 @@ export class StarsPage {
       <p style="color:var(--color-text-soft);font-size:13px;margin-top:0">${st.hint}</p>
       <form class="page-card" id="st-form">
         <div class="form-row">
-          <label>${st.keyLabel} <input type="text" id="st-key" value="Lyr" size="12" /></label>
+          <label>${st.keyLabel} <input type="text" id="st-key" value="${key}" size="12" /></label>
           <button class="btn btn-primary" type="submit">${st.btnSearch}</button>
         </div>
         <div class="form-row">
           <label>${t('ui.labels.year')} <input type="number" id="st-y" value="${y}" min="-4712" max="9999" /></label>
           <label>${t('ui.labels.month')} <input type="number" id="st-m" value="${m}" min="1" max="12" /></label>
           <label>${t('ui.labels.day')} <input type="number" id="st-d" value="${d}" min="1" max="31" /></label>
-          <label>${t('ui.labels.time_')} <input type="text" id="st-t" value="20:00:00" size="10" /></label>
+          <label>${t('ui.labels.time_')} <input type="text" id="st-t" value="${time}" size="10" /></label>
         </div>
         <div class="form-row">
           <label>${st.timeScale}
             <select id="st-scale">
-              <option value="UT" selected>UTC</option>
-              <option value="TD">TD</option>
+              <option value="UT"${scale === 'UT' ? ' selected' : ''}>UTC</option>
+              <option value="TD"${scale === 'TD' ? ' selected' : ''}>TD</option>
             </select>
           </label>
-          <label>${t('ui.labels.longitude')} <input type="number" id="st-lon" value="121.5" step="0.001" /> °</label>
-          <label>${t('ui.labels.latitude')} <input type="number" id="st-lat" value="25.0"  step="0.001" /> °</label>
+          <label>${t('ui.labels.longitude')} <input type="number" id="st-lon" value="${lon}" step="0.001" /> °</label>
+          <label>${t('ui.labels.latitude')} <input type="number" id="st-lat" value="${lat}"  step="0.001" /> °</label>
           <label>${st.mode} <select id="st-mode">${modeOptions}</select></label>
         </div>
       </form>
@@ -82,6 +91,7 @@ export class StarsPage {
     const lon = Number(q('st-lon').value);
     const lat = Number(q('st-lat').value);
     const mode = Number(q('st-mode').value);
+    saveFormState('stars', { key, y, m, d, time, scale, lon, lat, mode });
 
     const out = q('st-output');
     const st = t('ui.stars');

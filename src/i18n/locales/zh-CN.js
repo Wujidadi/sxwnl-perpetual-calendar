@@ -158,7 +158,12 @@ export default {
   ui: {
     appTitle: '万年历',
     locale: '语系',
-    footer: '算法承自寿星万年历作者许剑伟。',
+    localeAutoToast: '已为您选为简体中文（可从右上角切换）',
+    themeLight: '☀',
+    themeDark:  '☾',
+    themeTooltip: '切换深色／浅色',
+    kbdHint: '提示：方向键 ←／→ 可切换分页',
+    footer: '算法来自寿星万年历作者许剑伟',
     buttons: {
       compute: '计算',
       query: '查询',
@@ -209,10 +214,12 @@ export default {
 
     monthCalendar: {
       hint: '点击日期格可查看详细资讯。',
-      btnView:   '查看',
-      btnToday:  '今日',
-      btnPrev:   '‹ 上月',
-      btnNext:   '下月 ›',
+      btnView:      '查看',
+      btnToday:     '今日',
+      btnPrev:      '‹ 上月',
+      btnNext:      '下月 ›',
+      btnPrevYear:  '‹‹ 上年',
+      btnNextYear:  '下年 ››',
       currentMark: '（本月）',
       yearLabel: '年份',
       monthLabel: '月份',

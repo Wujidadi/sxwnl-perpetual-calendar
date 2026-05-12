@@ -373,7 +373,12 @@ export default {
   ui: {
     appTitle: '萬年曆',
     locale: '語系',
-    footer: '演算法承自壽星萬年曆作者許劍偉。',
+    localeAutoToast: '已為您選為繁體中文（可從右上角切換）',
+    themeLight: '☀',
+    themeDark:  '☾',
+    themeTooltip: '切換深色／淺色',
+    kbdHint: '提示：方向鍵 ←／→ 可切換分頁',
+    footer: '演算法來自壽星萬年曆作者許劍偉',
     buttons: {
       compute: '計算',
       query: '查詢',
@@ -424,10 +429,12 @@ export default {
 
     monthCalendar: {
       hint: '點擊日期格可查看詳細資訊。',
-      btnView:   '查看',
-      btnToday:  '今日',
-      btnPrev:   '‹ 上月',
-      btnNext:   '下月 ›',
+      btnView:      '查看',
+      btnToday:     '今日',
+      btnPrev:      '‹ 上月',
+      btnNext:      '下月 ›',
+      btnPrevYear:  '‹‹ 上年',
+      btnNextYear:  '下年 ››',
       currentMark: '（本月）',
       yearLabel: '年份',
       monthLabel: '月份',

@@ -30,6 +30,24 @@
   --font-mono: ui-monospace, "SF Mono", Consolas, Menlo, monospace;
 }
 
+/* === 深色主題 === */
+[data-theme="dark"] {
+  --color-bg:          #0f1216;
+  --color-surface:     #181c22;
+  --color-border:      #2a2f37;
+  --color-text:        #e6e8eb;
+  --color-text-soft:   #9aa3ad;
+  --color-accent:      #6ea0ff;
+  --color-accent-soft: #1a2540;
+  --color-holiday:     #ff7a8d;
+  --color-weekend:     #1d2027;
+  --color-lunar:       #9aa3ad;
+  --color-today-bg:    #6ea0ff;
+  --color-today-fg:    #0f1216;
+  --color-term:        #5dd96a;
+  --color-phase:       #f0c060;
+}
+
 /* === 重置 === */
 *,
 *::before,
@@ -44,7 +62,18 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 button { font-family: inherit; cursor: pointer; }
-input, select { font-family: inherit; }
+input, select, textarea {
+  font-family: inherit;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-1);
+  padding: 2px 6px;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
 
 /* === 應用框架 === */
 #app[data-loading="true"]::after {
@@ -90,6 +119,38 @@ input, select { font-family: inherit; }
   color: var(--color-text);
   font-size: 13px;
 }
+.app-theme-toggle {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-1);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1;
+}
+.app-theme-toggle:hover { background: var(--color-accent-soft); }
+
+/* === Toast === */
+.app-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2);
+  padding: 10px 16px;
+  font-size: 13px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1000;
+  pointer-events: none;
+}
+.app-toast.is-visible { opacity: 1; }
 
 .app-nav {
   background: var(--color-surface);
@@ -403,6 +464,16 @@ input, select { font-family: inherit; }
   .calendar-cell { min-height: 56px; }
   .calendar-day-num { font-size: 14px; }
   .calendar-lunar, .calendar-festival { font-size: 10px; }
+}
+
+/* === 鍵盤提示細條（位於主導覽下方） === */
+.app-kbd-hint {
+  padding: 4px var(--space-4);
+  font-size: 12px;
+  color: var(--color-text-soft);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  text-align: right;
 }
 
 /* === 致謝 === */

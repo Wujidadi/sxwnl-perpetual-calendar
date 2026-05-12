@@ -5,6 +5,7 @@ import {
   renderYearCalendarV2HTML,
 } from '../../lunar/year-calendar.js';
 import { t } from '../../i18n/index.js';
+import { saveFormState, loadFormState } from '../../utils/storage.js';
 
 export class YearCalendarPage {
   constructor() {
@@ -12,7 +13,9 @@ export class YearCalendarPage {
   }
 
   mount(container) {
-    const y = new Date().getFullYear();
+    const saved = loadFormState('year-calendar') || {};
+    const y = saved.y ?? new Date().getFullYear();
+    const variant = saved.variant ?? 'v1';
     const root = document.createElement('section');
     root.className = 'page-year-calendar';
     const yc = t('ui.yearCalendar');
@@ -27,8 +30,8 @@ export class YearCalendarPage {
           <label>
             ${yc.variantLabel}
             <select id="yc-variant">
-              <option value="v1">${yc.variantV1}</option>
-              <option value="v2">${yc.variantV2}</option>
+              <option value="v1"${variant === 'v1' ? ' selected' : ''}>${yc.variantV1}</option>
+              <option value="v2"${variant === 'v2' ? ' selected' : ''}>${yc.variantV2}</option>
             </select>
           </label>
           <button class="btn btn-primary" type="submit">${t('ui.buttons.query')}</button>
@@ -53,6 +56,7 @@ export class YearCalendarPage {
   render() {
     const y = Number(this.el.querySelector('#yc-y').value);
     const variant = this.el.querySelector('#yc-variant').value;
+    saveFormState('year-calendar', { y, variant });
     const out = this.el.querySelector('#yc-output');
     let html;
     if (variant === 'v2') {

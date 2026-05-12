@@ -4,13 +4,19 @@ import { gregorianToJD } from '../../astro/julian-day.js';
 import { J2000 } from '../../astro/constants.js';
 import { riseTransitSet } from '../../astro/rise-set.js';
 import { t } from '../../i18n/index.js';
+import { saveFormState, loadFormState } from '../../utils/storage.js';
 
 export class RiseSetPage {
   mount(container) {
     const today = new Date();
-    const y = today.getFullYear();
-    const m = today.getMonth() + 1;
-    const d = today.getDate();
+    const saved = loadFormState('rise-set') || {};
+    const y = saved.y ?? today.getFullYear();
+    const m = saved.m ?? today.getMonth() + 1;
+    const d = saved.d ?? today.getDate();
+    const n = saved.n ?? 7;
+    const lon = saved.lon ?? 121.5;
+    const lat = saved.lat ?? 25.0;
+    const tz  = saved.tz  ?? 8;
 
     const root = document.createElement('section');
     root.className = 'page-rise-set';
@@ -25,12 +31,12 @@ export class RiseSetPage {
           <label>${t('ui.labels.year')} <input type="number" id="rs-y" value="${y}" min="-4712" max="9999" /></label>
           <label>${t('ui.labels.month')} <input type="number" id="rs-m" value="${m}" min="1" max="12" /></label>
           <label>${t('ui.labels.day')} <input type="number" id="rs-d" value="${d}" min="1" max="31" /></label>
-          <label>${rs.days} <input type="number" id="rs-n" value="7" min="1" max="31" /></label>
+          <label>${rs.days} <input type="number" id="rs-n" value="${n}" min="1" max="31" /></label>
         </div>
         <div class="form-row">
-          <label>${t('ui.labels.longitude')} <input type="number" id="rs-lon" value="121.5" step="0.001" /> ${rs.lonHint}</label>
-          <label>${t('ui.labels.latitude')} <input type="number" id="rs-lat" value="25.0"  step="0.001" /> ${rs.latHint}</label>
-          <label>${rs.tzLabel} <input type="number" id="rs-tz" value="8" step="0.5" /> ${rs.hourUnit}</label>
+          <label>${t('ui.labels.longitude')} <input type="number" id="rs-lon" value="${lon}" step="0.001" /> ${rs.lonHint}</label>
+          <label>${t('ui.labels.latitude')} <input type="number" id="rs-lat" value="${lat}"  step="0.001" /> ${rs.latHint}</label>
+          <label>${rs.tzLabel} <input type="number" id="rs-tz" value="${tz}" step="0.5" /> ${rs.hourUnit}</label>
           <button class="btn btn-primary" type="submit">${t('ui.buttons.compute')}</button>
         </div>
       </form>
@@ -55,6 +61,7 @@ export class RiseSetPage {
     const num = (id) => Number(root.querySelector('#' + id).value);
     const y = num('rs-y'), m = num('rs-m'), d = num('rs-d'), n = Math.max(1, Math.min(31, num('rs-n')));
     const lon = num('rs-lon'), lat = num('rs-lat'), tz = num('rs-tz');
+    saveFormState('rise-set', { y, m, d, n, lon, lat, tz });
 
     // 本地起始正午的 J2000 相對 JD
     const jdLocalNoon = gregorianToJD(y, m, d + 0.5) - J2000;

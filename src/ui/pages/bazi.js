@@ -4,15 +4,20 @@ import { gregorianToJD } from '../../astro/julian-day.js';
 import { J2000 } from '../../astro/constants.js';
 import { computeBazi } from '../../lunar/chinese-base.js';
 import { t } from '../../i18n/index.js';
+import { saveFormState, loadFormState } from '../../utils/storage.js';
 
 export class BaziPage {
   mount(container) {
     const today = new Date();
-    const y = today.getFullYear();
-    const m = today.getMonth() + 1;
-    const d = today.getDate();
-    const hh = today.getHours();
-    const mm = today.getMinutes();
+    const saved = loadFormState('bazi') || {};
+    const y  = saved.y  ?? today.getFullYear();
+    const m  = saved.m  ?? today.getMonth() + 1;
+    const d  = saved.d  ?? today.getDate();
+    const hh = saved.hh ?? today.getHours();
+    const mm = saved.mi ?? today.getMinutes();
+    const ss = saved.s   ?? 0;
+    const lon = saved.lon ?? 120;
+    const tz  = saved.tz  ?? 8;
 
     const root = document.createElement('section');
     root.className = 'page-bazi';
@@ -31,11 +36,11 @@ export class BaziPage {
         <div class="form-row">
           <label>${bz.hour} <input type="number" id="bz-h" value="${hh}" min="0" max="23" step="1" /></label>
           <label>${bz.minute} <input type="number" id="bz-mi" value="${mm}" min="0" max="59" step="1" /></label>
-          <label>${bz.second} <input type="number" id="bz-s" value="0" min="0" max="59" step="1" /></label>
+          <label>${bz.second} <input type="number" id="bz-s" value="${ss}" min="0" max="59" step="1" /></label>
         </div>
         <div class="form-row">
-          <label>${bz.lonHint}<input type="number" id="bz-lon" value="120" step="0.001" /> °</label>
-          <label>${bz.tzLabel} <input type="number" id="bz-tz" value="8" step="0.5" /> ${bz.hourUnit}</label>
+          <label>${bz.lonHint}<input type="number" id="bz-lon" value="${lon}" step="0.001" /> °</label>
+          <label>${bz.tzLabel} <input type="number" id="bz-tz" value="${tz}" step="0.5" /> ${bz.hourUnit}</label>
           <button class="btn btn-primary" type="submit">${t('ui.buttons.compute')}</button>
         </div>
       </form>
@@ -63,6 +68,7 @@ export class BaziPage {
     const d  = num('bz-d');
     const hh = num('bz-h');
     const mi = num('bz-mi');
+    saveFormState('bazi', { y, m, d, hh, mi, s: num('bz-s'), lon: num('bz-lon'), tz: num('bz-tz') });
     const ss = num('bz-s');
     const lon = num('bz-lon');
     const tz  = num('bz-tz');

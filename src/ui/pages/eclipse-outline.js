@@ -10,6 +10,7 @@ import { fastSolarEclipseSearch, solarEclipseBesselian } from '../../astro/solar
 import { createWorldMap } from '../canvas/world-map.js';
 import { drawEclipseTimeline } from '../canvas/eclipse-timeline.js';
 import { t } from '../../i18n/index.js';
+import { saveFormState, loadFormState } from '../../utils/storage.js';
 
 function pad2(n) { return (n < 10 ? '0' : '') + Math.floor(n); }
 
@@ -25,9 +26,10 @@ function radToDeg(r) { return r * RAD_TO_DEG; }
 export class EclipseOutlinePage {
   mount(container) {
     const today = new Date();
-    const y = today.getFullYear();
-    const m = today.getMonth() + 1;
-    const d = today.getDate();
+    const saved = loadFormState('eclipse-outline') || {};
+    const y = saved.year  ?? today.getFullYear();
+    const m = saved.month ?? today.getMonth() + 1;
+    const d = saved.day   ?? today.getDate();
     const root = document.createElement('section');
     root.className = 'page-eclipse-outline';
     root.innerHTML = `
@@ -64,6 +66,7 @@ export class EclipseOutlinePage {
     const y = Number(q('eo-y').value);
     const m = Number(q('eo-m').value);
     const d = Number(q('eo-d').value);
+    saveFormState('eclipse-outline', { year: y, month: m, day: d });
     const startJD = gregorianToJD(y, m, d + 0.5) - J2000;
 
     let found = null;

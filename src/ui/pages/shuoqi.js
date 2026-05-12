@@ -8,6 +8,7 @@ import {
 } from '../../lunar/chinese-base.js';
 import { shuoQiCalculator } from '../../lunar/ssq.js';
 import { t } from '../../i18n/index.js';
+import { saveFormState, loadFormState } from '../../utils/storage.js';
 
 // 將 J2000 起算的儒略日（+8 時區）格式化為 YYYY-MM-DD HH:MM:SS。
 function formatBeijingTime(jdJ2000) {
@@ -19,7 +20,7 @@ function pad2(n) { return (n < 10 ? '0' : '') + Math.floor(n); }
 
 export class ShuoQiPage {
   mount(container) {
-    const y = new Date().getFullYear();
+    const y = (loadFormState('shuoqi') || {}).y ?? new Date().getFullYear();
     const root = document.createElement('section');
     root.className = 'page-shuoqi';
     root.innerHTML = `
@@ -51,6 +52,7 @@ export class ShuoQiPage {
 
   compute() {
     const y = Number(this.el.querySelector('#sq-y').value);
+    saveFormState('shuoqi', { y });
     // 以該年中央位置（約 7 月 1 日）起算
     const seed = Math.floor((y - 2000) * 365.2422 + 180);
     shuoQiCalculator.calcYear(seed);

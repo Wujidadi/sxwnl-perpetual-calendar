@@ -10,6 +10,7 @@ import { createEclipseLocalView } from '../canvas/eclipse-local-view.js';
 import { drawEclipseTimeline } from '../canvas/eclipse-timeline.js';
 import { createCityPicker } from '../components/city-picker.js';
 import { t } from '../../i18n/index.js';
+import { saveFormState, loadFormState } from '../../utils/storage.js';
 
 function pad2(n) { return (n < 10 ? '0' : '') + Math.floor(n); }
 
@@ -31,9 +32,14 @@ function formatBJ(jdTD) {
 export class LocalEclipsePage {
   mount(container) {
     const today = new Date();
-    const y = today.getFullYear();
-    const m = today.getMonth() + 1;
-    const d = today.getDate();
+    const saved = loadFormState('local-eclipse') || {};
+    const y = saved.year  ?? today.getFullYear();
+    const m = saved.month ?? today.getMonth() + 1;
+    const d = saved.day   ?? today.getDate();
+    const time = saved.time ?? '12:00:00';
+    const lon  = saved.lon  ?? 121.5;
+    const lat  = saved.lat  ?? 25.0;
+    const high = saved.high ?? 0;
 
     const root = document.createElement('section');
     root.className = 'page-local-eclipse';
@@ -47,12 +53,12 @@ export class LocalEclipsePage {
           <label>${t('ui.labels.year')} <input type="number" id="le-y" value="${y}" min="-4712" max="9999" /></label>
           <label>${t('ui.labels.month')} <input type="number" id="le-m" value="${m}" min="1" max="12" /></label>
           <label>${t('ui.labels.day')} <input type="number" id="le-d" value="${d}" min="1" max="31" /></label>
-          <label>${t('ui.labels.time')}<input type="text" id="le-t" value="12:00:00" size="10" /></label>
+          <label>${t('ui.labels.time')}<input type="text" id="le-t" value="${time}" size="10" /></label>
         </div>
         <div class="form-row">
-          <label>${t('ui.labels.longitude')} <input type="number" id="le-lon" value="121.5" step="0.001" /> °</label>
-          <label>${t('ui.labels.latitude')} <input type="number" id="le-lat" value="25.0"  step="0.001" /> °</label>
-          <label>${t('ui.labels.altitude')} <input type="number" id="le-high" value="0" step="0.01" /> km</label>
+          <label>${t('ui.labels.longitude')} <input type="number" id="le-lon" value="${lon}" step="0.001" /> °</label>
+          <label>${t('ui.labels.latitude')} <input type="number" id="le-lat" value="${lat}"  step="0.001" /> °</label>
+          <label>${t('ui.labels.altitude')} <input type="number" id="le-high" value="${high}" step="0.01" /> km</label>
         </div>
         <div class="form-row" id="le-city-row">
           <span id="le-city-host"></span>
@@ -136,6 +142,7 @@ export class LocalEclipsePage {
 
   compute() {
     const f = this.readForm();
+    saveFormState('local-eclipse', f);
     const jdTD = this.formJDTD(f);
     const lonRad = f.lon * Math.PI / 180;
     const latRad = f.lat * Math.PI / 180;

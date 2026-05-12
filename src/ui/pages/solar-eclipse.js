@@ -13,6 +13,7 @@ import { shuoQiCalculator } from '../../lunar/ssq.js';
 import { moonSunDiffToTime } from '../../astro/ephemeris.js';
 import { drawEclipseTimeline } from '../canvas/eclipse-timeline.js';
 import { t } from '../../i18n/index.js';
+import { saveFormState, loadFormState } from '../../utils/storage.js';
 
 function pad2(n) { return (n < 10 ? '0' : '') + Math.floor(n); }
 
@@ -93,7 +94,7 @@ function findYearEclipses(year) {
 
 export class SolarEclipsePage {
   mount(container) {
-    const y = new Date().getFullYear();
+    const y = (loadFormState('solar-eclipse') || {}).y ?? new Date().getFullYear();
     const root = document.createElement('section');
     root.className = 'page-solar-eclipse';
     root.innerHTML = `
@@ -125,6 +126,7 @@ export class SolarEclipsePage {
 
   compute() {
     const y = Number(this.el.querySelector('#se-y').value);
+    saveFormState('solar-eclipse', { y });
     const { solar, lunar } = findYearEclipses(y);
 
     const sp = t('ui.solarEclipsePage');
