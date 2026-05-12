@@ -1,4 +1,4 @@
-// 简体中文（沿用原版字串）
+// 简体中文（baseline）
 
 export default {
   // 天文・行星

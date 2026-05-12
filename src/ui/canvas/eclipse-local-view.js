@@ -64,7 +64,7 @@ export function createEclipseLocalView(canvas) {
     //   er：本影半徑（角秒）
     //   Er：半影半徑（角秒）
     drawLunarMagnified(J1, W1, J2, W2, mr, er, Er) {
-      // 月食放大圖以「2 倍解析度」呈現（vs/2 in 原版）：放大半個視野（16 角分對應 halfMin）
+      // 月食放大圖以「2 倍解析度」呈現：放大半個視野（16 角分對應 halfMin）
       const lunarScale = pxPerArcsec / 2;
       const dJraw = -normalizeAngleSigned(J1 - J2);
       const dWraw = W1 - W2;
