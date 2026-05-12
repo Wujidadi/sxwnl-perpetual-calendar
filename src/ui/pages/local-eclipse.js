@@ -7,6 +7,8 @@ import { parseTimeToHours } from '../../utils/time.js';
 import { fastSolarEclipseSearch, solarEclipseLocal } from '../../astro/solar-eclipse.js';
 import { lunarEclipse } from '../../astro/lunar-eclipse.js';
 import { createEclipseLocalView } from '../canvas/eclipse-local-view.js';
+import { drawEclipseTimeline } from '../canvas/eclipse-timeline.js';
+import { createCityPicker } from '../components/city-picker.js';
 
 function pad2(n) { return (n < 10 ? '0' : '') + Math.floor(n); }
 
@@ -44,6 +46,9 @@ export class LocalEclipsePage {
           <label>經度 <input type="number" id="le-lon" value="121.5" step="0.001" /> °</label>
           <label>緯度 <input type="number" id="le-lat" value="25.0"  step="0.001" /> °</label>
           <label>海拔 <input type="number" id="le-high" value="0" step="0.01" /> km</label>
+        </div>
+        <div class="form-row" id="le-city-row">
+          <span id="le-city-host"></span>
           <button class="btn btn-primary" type="submit">計算</button>
           <button class="btn" type="button" id="le-find">自動找近期日食</button>
         </div>
@@ -59,10 +64,19 @@ export class LocalEclipsePage {
     });
     root.querySelector('#le-find').addEventListener('click', () => this.findNearest());
 
+    this.cityPicker = createCityPicker(root.querySelector('#le-city-host'), {
+      onSelect: ({ longitudeDeg, latitudeDeg }) => {
+        root.querySelector('#le-lon').value = longitudeDeg.toFixed(3);
+        root.querySelector('#le-lat').value = latitudeDeg.toFixed(3);
+        this.compute();
+      },
+    });
+
     this.compute();
   }
 
   unmount() {
+    if (this.cityPicker) { this.cityPicker.unmount(); this.cityPicker = null; }
     if (this.el && this.el.parentNode) this.el.parentNode.removeChild(this.el);
     this.el = null;
   }
@@ -185,6 +199,13 @@ export class LocalEclipsePage {
         </table>
       </div>
       <div class="page-card">
+        <h3>食程時間軸</h3>
+        <canvas id="le-timeline" width="720" height="160" style="background:#0d1116;border-radius:8px;display:block;width:100%;max-width:720px;margin:0 auto"></canvas>
+        <p style="color:var(--color-text-soft);font-size:12px;margin-top:8px;text-align:center">
+          藍：初虧／復圓；橙：食既／生光（僅全食或環食有）；紅：食甚。
+        </p>
+      </div>
+      <div class="page-card">
         <h3>放大圖（食甚時刻）</h3>
         <canvas id="le-canvas" width="480" height="320" style="background:#0d1116;border-radius:8px;display:block;margin:0 auto"></canvas>
         <p style="color:var(--color-text-soft);font-size:12px;margin-top:8px;text-align:center">
@@ -193,6 +214,17 @@ export class LocalEclipsePage {
       </div>
     `;
     draw();
+    const timelineCanvas = this.el.querySelector('#le-timeline');
+    if (timelineCanvas) {
+      const events = [
+        { jd: sT[0], key: 'P1',  label: '初虧' },
+        ...(sT[3] ? [{ jd: sT[3], key: 'U1', label: '食既' }] : []),
+        { jd: sT[1], key: 'Max', label: '食甚' },
+        ...(sT[4] ? [{ jd: sT[4], key: 'U4', label: '生光' }] : []),
+        { jd: sT[2], key: 'P4',  label: '復圓' },
+      ];
+      drawEclipseTimeline(timelineCanvas, events);
+    }
   }
 }
 

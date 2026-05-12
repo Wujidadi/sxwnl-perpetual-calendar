@@ -11,6 +11,7 @@ import { fastSolarEclipseSearch } from '../../astro/solar-eclipse.js';
 import { lunarEclipse } from '../../astro/lunar-eclipse.js';
 import { shuoQiCalculator } from '../../lunar/ssq.js';
 import { moonSunDiffToTime } from '../../astro/ephemeris.js';
+import { drawEclipseTimeline } from '../canvas/eclipse-timeline.js';
 
 const SOLAR_TYPE_LABEL = {
   P: '偏食', T: '全食', A: '環食',
@@ -142,13 +143,14 @@ export class SolarEclipsePage {
         <td>${e.ac === 0 ? '（臨界）' : ''}</td>
       </tr>`;
     }).join('');
-    const lunarRows = lunar.map((e) => {
+    const lunarRows = lunar.map((e, idx) => {
       const label = LUNAR_LABEL[e.type] || e.type;
       return `<tr>
         <td>${formatBJ(e.jdTD)}</td>
         <td>${label}</td>
-        <td class="mono">月地心視半徑 ${e.mr.toFixed(1)}″</td>
+        <td class="mono">月視半徑 ${e.mr.toFixed(1)}″</td>
         <td class="mono">中心距 ${e.sep.toFixed(1)}″</td>
+        <td><button type="button" class="btn" data-le-idx="${idx}">時間軸</button></td>
       </tr>`;
     }).join('');
 
@@ -165,14 +167,49 @@ export class SolarEclipsePage {
         <h3>月食（${lunar.length} 起）</h3>
         ${lunar.length ? `
           <table class="data-table">
-            <thead><tr><th>食甚（北京時，近似）</th><th>類型</th><th>月視半徑</th><th>距影中心</th></tr></thead>
+            <thead><tr><th>食甚（北京時，近似）</th><th>類型</th><th>月視半徑</th><th>距影中心</th><th></th></tr></thead>
             <tbody>${lunarRows}</tbody>
           </table>
+          <div id="se-lunar-detail" style="margin-top:12px"></div>
           <p style="color:var(--color-text-soft);font-size:12px;margin-top:8px">
-            月食食甚時刻為滿月時刻近似值（非經食甚迭代）；類型依該時刻月地影距離分類為半影／偏／全食。
+            月食食甚時刻為滿月時刻近似值；點擊「時間軸」會以 lecMax 精算該次月食的初虧／食既／食甚／生光／復圓與半影始終。
           </p>
           ` : '<p style="color:var(--color-text-soft)">該年無月食。</p>'}
       </div>
     `;
+
+    this.el.querySelectorAll('[data-le-idx]').forEach((btn) => {
+      btn.addEventListener('click', () => this.showLunarTimeline(lunar[Number(btn.dataset.leIdx)]));
+    });
+  }
+
+  showLunarTimeline(ev) {
+    if (!ev) return;
+    lunarEclipse.lecMax(ev.jdTD);
+    const lT = lunarEclipse.lT;
+    const LX = lunarEclipse.LX;
+    const sf = lunarEclipse.sf;
+    const events = [];
+    const push = (jd, key, label) => {
+      if (jd && !isNaN(jd) && jd !== 0) events.push({ jd, key, label });
+    };
+    push(lT[3], 'Pe1', '半影始');
+    push(lT[1], 'P1',  '初虧');
+    push(lT[5], 'U1',  '食既');
+    push(lT[0], 'Max', '食甚');
+    push(lT[6], 'U4',  '生光');
+    push(lT[2], 'P4',  '復圓');
+    push(lT[4], 'Pe4', '半影終');
+
+    const host = this.el.querySelector('#se-lunar-detail');
+    host.innerHTML = `
+      <div class="page-card" style="margin:0">
+        <h4 style="margin:0 0 8px">${LX || '—'}（${formatBJ(lT[0] || ev.jdTD)}）食分 ${sf ? sf.toFixed(3) : '—'}</h4>
+        <canvas id="se-lunar-timeline" width="720" height="160"
+          style="background:#0d1116;border-radius:8px;display:block;width:100%;max-width:720px;margin:0 auto"></canvas>
+      </div>
+    `;
+    const canvas = host.querySelector('#se-lunar-timeline');
+    if (canvas) drawEclipseTimeline(canvas, events);
   }
 }

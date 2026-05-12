@@ -1,19 +1,14 @@
 // 日食概略分頁：給定日期附近找日食，呈現全球路徑概覽。
 //
-// 簡化版：使用等距矩形（equirectangular）座標系，標出最大食地標與五個關鍵點
-// （中心始、中心終、偏食始、偏食終、地方視午），不繪世界地圖背景。
+// 採等距矩形（equirectangular）座標系，背景為世界海岸線輪廓，
+// 標出最大食地標、五個關鍵點與食甚時刻軸。
 
-import { J2000, RAD_TO_DEG, EARTH_EQUATORIAL_RADIUS_KM } from '../../astro/constants.js';
+import { J2000, RAD_TO_DEG } from '../../astro/constants.js';
 import { gregorianToJD, jdToGregorian } from '../../astro/julian-day.js';
 import { deltaT } from '../../astro/delta-t.js';
 import { fastSolarEclipseSearch, solarEclipseBesselian } from '../../astro/solar-eclipse.js';
-import {
-  drawLine,
-  drawCircleFilled,
-  drawCircleOutline,
-  drawText,
-  clearCanvas,
-} from '../canvas/draw-helpers.js';
+import { createWorldMap } from '../canvas/world-map.js';
+import { drawEclipseTimeline } from '../canvas/eclipse-timeline.js';
 
 const SOLAR_TYPE_LABEL = {
   N: '無食',  P: '偏食',  T: '全食',  A: '環食',
@@ -45,7 +40,7 @@ export class EclipseOutlinePage {
       <h2 style="margin-top:0">日食概略</h2>
       <p style="color:var(--color-text-soft);font-size:13px;margin-top:0">
         以指定日期向後搜尋第一個日食事件，呈現全球視角的關鍵地理座標。
-        圖示為等距矩形投影（簡化版）的世界座標格，標出最大食地標與五個關鍵點。
+        圖示為等距矩形投影，背景為世界海岸線輪廓；下方時間軸顯示中心始／食甚／中心終。
       </p>
       <form class="page-card" id="eo-form">
         <div class="form-row">
@@ -78,7 +73,6 @@ export class EclipseOutlinePage {
     const d = Number(q('eo-d').value);
     const startJD = gregorianToJD(y, m, d + 0.5) - J2000;
 
-    // 向後搜尋 14 個合朔，找到首個日食
     let found = null;
     for (let step = 0; step < 14; step++) {
       const re = fastSolarEclipseSearch(startJD + step * 29.5306);
@@ -91,7 +85,6 @@ export class EclipseOutlinePage {
       return;
     }
 
-    // 使用 solarEclipseBesselian.feature 取得全球特徵
     solarEclipseBesselian.init(found.jd, 7);
     const re = solarEclipseBesselian.feature(found.jd);
 
@@ -114,7 +107,7 @@ export class EclipseOutlinePage {
       <div class="page-card">
         <h3>五個關鍵點（地表）</h3>
         <table class="data-table">
-          <thead><tr><th>點</th><th>經度</th><th>緯度</th><th>時刻</th></tr></thead>
+          <thead><tr><th>點</th><th>經度</th><th>緯度</th><th>時刻（北京時）</th></tr></thead>
           <tbody>
             ${this.renderKey(re.gk1, '中心始')}
             ${this.renderKey(re.gk2, '中心終')}
@@ -129,11 +122,20 @@ export class EclipseOutlinePage {
         <canvas id="eo-canvas" width="720" height="360"
           style="background:#0d1116;border-radius:8px;display:block;width:100%;max-width:720px;margin:0 auto"></canvas>
         <p style="color:var(--color-text-soft);font-size:12px;margin-top:8px;text-align:center">
-          紅：最大食；藍：偏食始終；橙：中心食始終；綠：地方視午食點。經度軸 −180°~+180°，緯度軸 +90°~−90°。
+          紅：最大食；橙：中心食始終；藍：偏食始終；綠：地方視午食點。陸地以海岸線輪廓示意。
+        </p>
+      </div>
+      <div class="page-card">
+        <h3>食程時間軸</h3>
+        <canvas id="eo-timeline" width="720" height="160"
+          style="background:#0d1116;border-radius:8px;display:block;width:100%;max-width:720px;margin:0 auto"></canvas>
+        <p style="color:var(--color-text-soft);font-size:12px;margin-top:8px;text-align:center">
+          時間軸涵蓋偏食始至偏食終；橙色為中心食始終，紅色為食甚（最大食）。
         </p>
       </div>
     `;
     this.drawMap(re);
+    this.drawTimeline(re);
   }
 
   renderKey(gk, label) {
@@ -149,46 +151,61 @@ export class EclipseOutlinePage {
   drawMap(re) {
     const canvas = this.el.querySelector('#eo-canvas');
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    clearCanvas(canvas);
-    const W = canvas.width, H = canvas.height;
+    const map = createWorldMap(canvas);
+    map.drawBackground();
+    const ctx = map.ctx;
 
-    // 經度 −180 ~ +180 對應 0 ~ W
-    // 緯度 +90 ~ −90 對應 0 ~ H
-    const x = (lonRad) => ((radToDeg(lonRad) + 180) / 360) * W;
-    const y = (latRad) => ((90 - radToDeg(latRad)) / 180) * H;
-
-    // 經緯網格（每 30 度一條）
-    ctx.lineWidth = 1;
-    for (let lon = -180; lon <= 180; lon += 30) {
-      const px = ((lon + 180) / 360) * W;
-      drawLine(ctx, px, 0, px, H, lon === 0 ? '#555' : '#2a3038');
-      drawText(ctx, px + 2, 2, lon + '°', '#555', '10px sans-serif');
-    }
-    for (let lat = -90; lat <= 90; lat += 30) {
-      const py = ((90 - lat) / 180) * H;
-      drawLine(ctx, 0, py, W, py, lat === 0 ? '#555' : '#2a3038');
-      drawText(ctx, 2, py + 2, lat + '°', '#555', '10px sans-serif');
-    }
-
-    // 標記點
     const markPoint = (gk, color, label) => {
       if (!gk || (gk[0] === 0 && gk[1] === 0)) return;
-      const px = x(gk[0]);
-      const py = y(gk[1]);
-      drawCircleFilled(ctx, px, py, 5, color);
-      drawText(ctx, px + 8, py - 6, label, color, 'bold 11px sans-serif');
+      const [px, py] = map.lonLatToXY(gk[0] * RAD_TO_DEG, gk[1] * RAD_TO_DEG);
+      ctx.beginPath();
+      ctx.arc(px, py, 5, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillStyle = color;
+      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'left';
+      ctx.fillText(label, px + 8, py - 6);
     };
 
-    // 最大食點
-    drawCircleOutline(ctx, x(re.zxJ), y(re.zxW), 10, '#ff5252');
-    drawCircleFilled(ctx, x(re.zxJ), y(re.zxW), 6, '#ff5252');
-    drawText(ctx, x(re.zxJ) + 12, y(re.zxW) - 6, '最大食', '#ff5252', 'bold 12px sans-serif');
+    // 最大食點（強調）
+    const [zxX, zxY] = map.lonLatToXY(re.zxJ * RAD_TO_DEG, re.zxW * RAD_TO_DEG);
+    ctx.strokeStyle = '#ff5252';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(zxX, zxY, 10, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = '#ff5252';
+    ctx.beginPath();
+    ctx.arc(zxX, zxY, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.font = 'bold 12px sans-serif';
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'left';
+    ctx.fillText('最大食', zxX + 14, zxY - 6);
 
     markPoint(re.gk1, '#ffa040', '中心始');
     markPoint(re.gk2, '#ffa040', '中心終');
     markPoint(re.gk3, '#4ea0ff', '偏食始');
     markPoint(re.gk4, '#4ea0ff', '偏食終');
     markPoint(re.gk5, '#5dd96a', '視午');
+  }
+
+  drawTimeline(re) {
+    const canvas = this.el.querySelector('#eo-timeline');
+    if (!canvas) return;
+    const events = [];
+    const push = (gk, key, label) => {
+      if (gk && gk[2] && !(gk[0] === 0 && gk[1] === 0)) {
+        events.push({ jd: gk[2], key, label });
+      }
+    };
+    push(re.gk3, 'P1', '偏食始');
+    push(re.gk1, 'U1', '中心始');
+    events.push({ jd: re.jd, key: 'Max', label: '食甚' });
+    push(re.gk2, 'U4', '中心終');
+    push(re.gk4, 'P4', '偏食終');
+    drawEclipseTimeline(canvas, events);
   }
 }
