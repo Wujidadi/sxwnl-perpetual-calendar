@@ -23,6 +23,24 @@ const SUPPORTED = [
 const listeners = new Set();
 let current = detectInitial();
 
+// 大宗 zh-TW 地名字典走 dynamic import，避免主 bundle 包含上千條條目。
+// 啟動時若當前語系為 zh-TW、或 setLocale('zh-TW') 第一次切換時觸發載入。
+const lazyLoaded = new Set();
+function ensureLazyCities(locale) {
+  if (locale !== 'zh-TW' || lazyLoaded.has(locale)) return;
+  lazyLoaded.add(locale);
+  import('./locales/zh-TW-cities.js')
+    .then((mod) => {
+      Object.assign(LOCALES['zh-TW'].cities, mod.default);
+      // 通知訂閱者重渲染（cities 既已就緒）
+      listeners.forEach((cb) => {
+        try { cb(current); } catch (e) { console.error('onLocaleChange callback 錯誤:', e); }
+      });
+    })
+    .catch((e) => console.warn('zh-TW-cities 載入失敗:', e));
+}
+ensureLazyCities(current);
+
 function detectInitial() {
   let stored = null;
   try { stored = persistentStorage.getItem(STORAGE_KEY); } catch (_) { /* SSR／非瀏覽器環境 */ }
@@ -85,6 +103,7 @@ export function setLocale(loc) {
   if (!LOCALES[loc] || loc === current) return;
   current = loc;
   try { persistentStorage.setItem(STORAGE_KEY, loc, 365); } catch (_) { /* SSR／非瀏覽器環境 */ }
+  ensureLazyCities(loc);
   listeners.forEach((cb) => {
     try { cb(loc); } catch (e) { console.error('onLocaleChange callback 錯誤:', e); }
   });
