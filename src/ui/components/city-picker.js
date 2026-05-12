@@ -8,6 +8,7 @@
 
 import { CITY_REGIONS, decodeCityCoord } from '../../data/cities.js';
 import { RAD_TO_DEG } from '../../astro/constants.js';
+import { t, tCity } from '../../i18n/index.js';
 
 // 拆出單一 entry：4 字元編碼 + 城市名。回傳 null 表示格式不符。
 function parseCityEntry(entry) {
@@ -22,7 +23,7 @@ export function createCityPicker(container, opts = {}) {
   const wrap = document.createElement('span');
   wrap.className = 'city-picker';
   wrap.innerHTML = `
-    <label>城市
+    <label>${t('ui.labels.city')}
       <select class="city-picker-region"></select>
       <select class="city-picker-city"></select>
     </label>
@@ -33,11 +34,11 @@ export function createCityPicker(container, opts = {}) {
   const citySel = wrap.querySelector('.city-picker-city');
 
   // 填省／地區
-  regionSel.innerHTML = '<option value="">— 省／地區 —</option>'
-    + CITY_REGIONS.map((row, idx) => `<option value="${idx}">${row[0]}</option>`).join('');
+  regionSel.innerHTML = `<option value="">${t('ui.cityPicker.region')}</option>`
+    + CITY_REGIONS.map((row, idx) => `<option value="${idx}">${tCity(row[0])}</option>`).join('');
 
   function fillCities(regionIdx) {
-    citySel.innerHTML = '<option value="">— 城市 —</option>';
+    citySel.innerHTML = `<option value="">${t('ui.cityPicker.city')}</option>`;
     if (regionIdx === '' || regionIdx === null || regionIdx === undefined) return;
     const row = CITY_REGIONS[Number(regionIdx)];
     if (!row) return;
@@ -47,7 +48,7 @@ export function createCityPicker(container, opts = {}) {
       if (e) items.push(e);
     }
     citySel.innerHTML += items
-      .map((e, i) => `<option value="${i}">${e.name}</option>`)
+      .map((e, i) => `<option value="${i}">${tCity(e.name)}</option>`)
       .join('');
     citySel._items = items;
   }

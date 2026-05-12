@@ -63,6 +63,16 @@ export default {
     },
   },
 
+  // 城市／地區字典：以 zh-CN 字串為 key（zh-CN 自身為 identity）。
+  // 未列入字典的條目顯示時 fallback 為原 zh-CN 字串。
+  cities: {},
+
+  // 時區國家／城市字典；同上。
+  timezones: {},
+
+  // 恆星附屬中文字典；同上。
+  stars: {},
+
   // 节日字典：以 zh-CN 字串為 key
   festival: {
     // 公曆固定節日

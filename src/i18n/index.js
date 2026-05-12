@@ -61,6 +61,22 @@ export function tFestival(s) {
   return (dict && dict[s]) || s;
 }
 
+// 大型資料字典通用查找器：未命中時回原字串。
+function lookupOrFallback(category, s) {
+  if (!s) return s;
+  const dict = LOCALES[current] && LOCALES[current][category];
+  return (dict && dict[s]) || s;
+}
+
+// 城市／省份／地區名稱轉譯（cities.js 解出的中文短語）。
+export function tCity(s)     { return lookupOrFallback('cities', s); }
+
+// 時區國家／城市轉譯（timezones.js 解出的中文短語）。
+export function tTimezone(s) { return lookupOrFallback('timezones', s); }
+
+// 恆星附屬中文短語（如「天琴座」等）轉譯。
+export function tStar(s)     { return lookupOrFallback('stars', s); }
+
 export function getLocale() {
   return current;
 }
