@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="萬年曆">
+  <circle id="svg_1" stroke-width="1.8" stroke="#6E4A2D" fill="#FAF6EE" r="29.5" cy="32" cx="32" />
+  <path id="svg_2"
+    d="m32.07463,57.5c-14.0884,0 -25.5,-11.4116 -25.5,-25.5c0,-14.0884 11.4116,-25.5 25.5,-25.5c14.0884,0 25.5,11.4116 25.5,25.5c0,14.0884 -11.4116,25.5 -25.5,25.5z"
+    opacity="undefined" stroke-linecap="round" stroke-dasharray="0.4 6.2759" stroke-width="2.4"
+    stroke="#6E4A2D" fill="none" />
+  <circle id="svg_3" stroke="#A8702A" fill="#F4C97A" r="10" cy="27" cx="25" />
+  <path stroke="#4F6E91" id="svg_4" stroke-linejoin="round" fill="#BFD1E3"
+    d="m39.68963,29.50024a19.89742,10.73746 0 0 1 0,18.79056c5.94156,-6.53999 5.93082,-12.90752 0,-18.79056z" />
+</svg>
