@@ -10,7 +10,7 @@ import {
   moonSunDiffToTime,
 } from '../astro/ephemeris.js';
 import { equationOfTimeFast } from '../astro/sidereal-time.js';
-import { t, tFestival } from '../i18n/index.js';
+import { t, tFestival, tReign } from '../i18n/index.js';
 
 // 注意：節日字串目前仍為簡體中文，將於後續批次抽入字典。
 
@@ -77,8 +77,8 @@ export function getReignTitle(y) {
   for (let i = 0; i < ob.length; i += 7) {
     const j = ob[i];
     if (y < j || y >= j + ob[i + 1]) continue;
-    const c = ob[i + 6] + (y - j + 1 + ob[i + 2]) + '年'; // 年號及年次
-    s += (s ? ';' : '') + '[' + ob[i + 3] + ']' + ob[i + 4] + ' ' + ob[i + 5] + ' ' + c;
+    const c = tReign(ob[i + 6]) + (y - j + 1 + ob[i + 2]) + '年'; // 年號及年次
+    s += (s ? ';' : '') + '[' + tReign(ob[i + 3]) + ']' + tReign(ob[i + 4]) + ' ' + tReign(ob[i + 5]) + ' ' + c;
   }
   return s;
 }

@@ -95,6 +95,9 @@ export function tTimezone(s) { return lookupOrFallback('timezones', s); }
 // 恆星附屬中文短語（如「天琴座」等）轉譯。
 export function tStar(s)     { return lookupOrFallback('stars', s); }
 
+// 年號／朝代／皇帝名稱轉譯（getReignTitle 解出的中文短語）。
+export function tReign(s)    { return lookupOrFallback('reign', s); }
+
 export function getLocale() {
   return current;
 }
