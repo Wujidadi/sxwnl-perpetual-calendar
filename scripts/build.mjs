@@ -43,6 +43,10 @@ async function copyCSS() {
   await fs.copyFile(path.join(ROOT, 'src/styles/main.css'), path.join(OUT_DIR, 'app.css'));
 }
 
+async function copyFavicon() {
+  await fs.copyFile(path.join(ROOT, 'favicon.svg'), path.join(OUT_DIR, 'favicon.svg'));
+}
+
 async function emitHTML() {
   const html = await fs.readFile(path.join(ROOT, 'index.html'), 'utf8');
   const out = html
@@ -97,6 +101,7 @@ async function emitReport(result) {
 await clean();
 const result = await buildJS();
 await copyCSS();
+await copyFavicon();
 await emitHTML();
 await emitReport(result);
 console.log('\nBuild complete: ' + path.relative(ROOT, OUT_DIR) + '/');
